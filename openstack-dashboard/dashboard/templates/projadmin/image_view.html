@@ -1,0 +1,17 @@
+{% extends 'projadmin/base.html' %}
+
+{% block sidebar %}
+  {% with current_sidebar="images" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block page_header %}
+  {% url projadmin/images as refresh_link %}
+  {# to make searchable false, just remove it from the include statement #}
+  {% include '_page_header.html' with title="Images" refresh_link=refresh_link searchable="true" %}
+{% endblock page_header %}
+
+{% block _main %}
+  {% include 'projadmin/image_table.html' %}
+{% endblock %}

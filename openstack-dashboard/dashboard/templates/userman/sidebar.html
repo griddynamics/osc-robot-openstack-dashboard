@@ -1,0 +1,6 @@
+<div id='sidebar'>
+  <h3>User Management Panel</h3>
+  <ul class='sub_nav'>
+    <li><a {% if current_sidebar == "users" %} class="active" {% endif %} href="{% url userman/users %}">Users</a></li>
+  </ul>
+</div>

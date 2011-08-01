@@ -10,9 +10,9 @@ import openstackx.api.exceptions as api_exceptions
 class KeyPairViewTests(base.BaseViewTests):
     def setUp(self):
         super(KeyPairViewTests, self).setUp()
-        keypair = self.mox.CreateMock(api.KeyPair)
-        keypair.key_name = 'keyName'
-        self.keypairs = (keypair,)
+        keypair_inner = base.Object()
+        keypair_inner.key_name = 'keyName'
+        self.keypairs = (api.KeyPair(keypair_inner),)
 
     def test_index(self):
         self.mox.StubOutWithMock(api, 'keypair_list')

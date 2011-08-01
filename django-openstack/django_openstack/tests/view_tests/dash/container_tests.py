@@ -10,8 +10,9 @@ from mox import IgnoreArg, IsA
 class ContainerViewTests(base.BaseViewTests):
     def setUp(self):
         super(ContainerViewTests, self).setUp()
-        self.container = self.mox.CreateMock(api.Container)
-        self.container.name = 'containerName'
+        container_inner = base.Object()
+        container_inner.name = 'containerName'
+        self.container = api.Container(container_inner)
 
     def test_index(self):
         self.mox.StubOutWithMock(api, 'swift_get_containers')

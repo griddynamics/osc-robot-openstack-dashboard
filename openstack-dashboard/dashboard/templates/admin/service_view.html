@@ -1,0 +1,18 @@
+{% extends 'admin/base.html' %}
+
+{% block sidebar %}
+  {% with current_sidebar="services" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block page_header %}
+  {% url admin/services as refresh_link %}
+  {# to make searchable false, just remove it from the include statement #}
+  {% include "_page_header.html" with title="Services" refresh_link=refresh_link searchable="true" %}
+{% endblock page_header %}
+
+{% block _main %}
+  {% include 'admin/service_table.html' %}
+{% endblock %}
+

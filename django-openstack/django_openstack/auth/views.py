@@ -23,13 +23,20 @@ import logging
 from django import template
 from django import shortcuts
 from django.contrib import messages
+from django.conf.urls.defaults import *
+from django.conf import settings
 
 from django_openstack import api
 from django_openstack import forms
 from openstackx.api import exceptions as api_exceptions
 
 
-LOG = logging.getLogger('django_openstack.auth')
+urlpatterns = patterns(__name__,
+    url(r'login/$', 'login', name='auth_login'),
+    url(r'logout/$', 'logout', name='auth_logout'),
+    url(r'switch/(?P<tenant_id>[^/]+)/$', 'switch_tenants', name='auth_switch'),
+)
+LOG = logging.getLogger(__name__)
 
 
 class Login(forms.SelfHandlingForm):
@@ -53,7 +60,7 @@ class Login(forms.SelfHandlingForm):
             LOG.info('Login form for user "%s". Service Catalog data:\n%s' %
                      (data['username'], token.serviceCatalog))
 
-            return shortcuts.redirect('dash_overview')
+            return shortcuts.redirect('user/overview')
 
         except api_exceptions.Unauthorized as e:
             msg = 'Error authenticating: %s' % e.message
@@ -73,9 +80,9 @@ class LoginWithTenant(Login):
 def login(request):
     if request.user and request.user.is_authenticated():
         if request.user.is_admin():
-            return shortcuts.redirect('syspanel_overview')
+            return shortcuts.redirect('projadmin/overview')
         else:
-            return shortcuts.redirect('dash_overview')
+            return shortcuts.redirect('user/overview')
 
     form, handled = Login.maybe_handle(request)
     if handled:
@@ -93,7 +100,7 @@ def switch_tenants(request, tenant_id):
     if handled:
         return handled
 
-    return shortcuts.render_to_response('switch_tenants.html', {
+    return shortcuts.render_to_response(panel + '/switch_tenants.html', {
         'to_tenant': tenant_id,
         'form': form,
     }, context_instance=template.RequestContext(request))

@@ -1,0 +1,18 @@
+{% extends 'projadmin/base.html' %}
+
+{% block sidebar %}
+  {% with current_sidebar="flavors" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block page_header %}
+  {% url projadmin/flavors as refresh_link %}
+  {# to make searchable false, just remove it from the include statement #}
+  {% include '_page_header.html' with title="Flavors" refresh_link=refresh_link searchable="true" %}
+{% endblock page_header %}
+
+{% block _main %}
+  {% include 'projadmin/flavor_table.html' %}
+  <a id="flavor_create_link" class="action_link large-rounded" href="{% url projadmin/flavors_create %}">Create New Flavor </a>
+{% endblock %}

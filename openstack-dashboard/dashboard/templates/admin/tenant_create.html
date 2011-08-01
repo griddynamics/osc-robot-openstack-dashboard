@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+
+{% block sidebar %}
+  {% with current_sidebar="tenants" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block page_header %}
+  {% include "_page_header.html" with title="Create Tenant" %}
+{% endblock page_header %}
+
+{% block _main %}
+  <div class="dash_block">
+    <div class="left">
+      {% include 'admin/tenant_create_form.html' %}
+    </div>
+
+    <div class="right">
+      <h3>Description:</h3>
+      <p>From here you can create a new tenant to organize users.</p>
+    </div>
+    <div class="clear">&nbsp;</div>
+  </div>
+{% endblock %}
+
+
+
+

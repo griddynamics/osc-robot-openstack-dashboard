@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+
+{% block sidebar %}
+  {% with current_sidebar="tenants" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block page_header %}
+  {% include "_page_header.html" with title="Update Tenant Quotas" %}
+{% endblock page_header %}
+
+{% block _main %}
+  <div class="dash_block">
+    <div class="left">
+      {% include 'admin/_update_quotas_form.html' with form=form %}
+    </div>
+
+    <div class="right">
+      <h3>Description:</h3>
+      <p>From here you can edit quotas (max limits) for the tenant {{tenant_id}}.</p>
+    </div>
+  </div>
+{% endblock %}
+
+
+
+

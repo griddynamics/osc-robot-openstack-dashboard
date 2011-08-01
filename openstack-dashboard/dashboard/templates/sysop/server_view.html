@@ -1,0 +1,16 @@
+{% extends 'sysop/base.html' %}
+
+{% block sidebar %}
+  {% with current_sidebar="servers" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block page_header %}
+  {% include "_page_header.html" with title="Servers" refresh_link=refresh_link searchable="true" %}
+{% endblock page_header %}
+
+{% block _main %}
+
+{% endblock %}
+

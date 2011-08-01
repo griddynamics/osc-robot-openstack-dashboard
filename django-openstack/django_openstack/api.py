@@ -49,7 +49,7 @@ import openstackx.auth
 from urlparse import urlparse
 
 
-LOG = logging.getLogger('django_openstack.api')
+LOG = logging.getLogger(__name__)
 
 
 class APIResourceWrapper(object):
@@ -236,21 +236,14 @@ class SwiftAuthentication(object):
     def authenticate(self):
         return (self.storage_url, '', self.auth_token)
 
-class ServiceCatalogException(api_exceptions.ApiException):
-    def __init__(self, service_name):
-        message = 'Invalid service catalog service: %s' % service_name
-        super(ServiceCatalogException, self).__init__(404, message)
 
 def url_for(request, service_name, admin=False):
     catalog = request.user.service_catalog
-    try:
-        if admin:
-            rv = catalog[service_name][0]['adminURL']
-        else:
-            rv = catalog[service_name][0]['internalURL']
-        return rv
-    except (IndexError, KeyError):
-        raise ServiceCatalogException(service_name)
+    if admin:
+        rv = catalog[service_name][0]['adminURL']
+    else:
+        rv = catalog[service_name][0]['internalURL']
+    return rv
 
 
 def check_openstackx(f):
@@ -623,18 +616,15 @@ def swift_get_object_data(request, container_name, object_name):
     return container.get_object(object_name).stream()
 
 class GlobalSummary(object):
-    node_resources = ['vcpus', 'disk_size', 'ram_size']
-    unit_mem_size = {'disk_size': ['GiB', 'TiB'], 'ram_size': ['MiB', 'GiB']}
-    node_resource_info = ['', 'active_', 'avail_']
+    summary = {}
+    service_list = []
+    usage_list = []
 
     def __init__(self, request):
-        self.summary = {}
         for rsrc in GlobalSummary.node_resources:
             for info in GlobalSummary.node_resource_info:
                 self.summary['total_' + info + rsrc] = 0
         self.request = request
-        self.service_list = []
-        self.usage_list = []
 
     def service(self):
         try:
@@ -692,3 +682,8 @@ class GlobalSummary(object):
     def avail(self):
         for rsrc in GlobalSummary.node_resources:
             self.summary['total_avail_' + rsrc] = self.summary['total_' + rsrc] - self.summary['total_active_' + rsrc]
+
+
+GlobalSummary.node_resources = ['vcpus', 'disk_size', 'ram_size']
+GlobalSummary.unit_mem_size = {'disk_size': ['GiB', 'TiB'], 'ram_size': ['MiB', 'GiB']}
+GlobalSummary.node_resource_info = ['', 'active_', 'avail_']

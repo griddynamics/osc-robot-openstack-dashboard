@@ -20,9 +20,26 @@
 
 from django.conf.urls.defaults import *
 from django.conf import settings
+import os
+from glob import glob
 
-urlpatterns = patterns('',
-    url(r'^auth/', include('django_openstack.auth.urls')),
-    url(r'^dash/', include('django_openstack.dash.urls')),
-    url(r'^syspanel/', include('django_openstack.syspanel.urls')),
-)
+def get_panel_name(file_name):
+    return os.path.basename(os.path.dirname(os.path.abspath(file_name)))
+
+
+urlpatterns = []
+panels = ['user', 'projadmin', 'admin', 'sysop', 'userman', 'auth']
+
+for panel in panels:
+    for tab_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/" + panel + "/*.py"):
+        tab = os.path.basename(tab_file)[:-3]
+        if tab == "urls" or tab == "__init__":
+            continue
+        tab_module = __import__("django_openstack" + "." + panel + "." + tab, 
+                                fromlist="django_openstack." + panel)
+        try:
+            tab_module.urlpatterns
+        except:
+            continue
+        urlpatterns += patterns('', url(r'^' + panel + '/', 
+                                        include('django_openstack.' + panel + "." + tab)))

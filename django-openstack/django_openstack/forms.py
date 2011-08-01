@@ -32,7 +32,7 @@ from django.utils import formats
 
 from django.forms import *
 
-LOG = logging.getLogger('django_openstack.forms')
+LOG = logging.getLogger(__name__)
 RE_DATE = re.compile(r'(\d{4})-(\d\d?)-(\d\d?)$')
 
 

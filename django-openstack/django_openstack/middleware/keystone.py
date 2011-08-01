@@ -70,4 +70,4 @@ class AuthenticationMiddleware(object):
                 pass
             messages.error(request, 'Your token has expired.\
                                      Please log in again')
-            return shortcuts.redirect('/auth/logout')
+            return shortcuts.redirect('auth/logout')

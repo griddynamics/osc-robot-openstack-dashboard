@@ -14,10 +14,10 @@ from mox import IsA, IgnoreArg
 class InstanceViewTests(base.BaseViewTests):
     def setUp(self):
         super(InstanceViewTests, self).setUp()
-        server = self.mox.CreateMock(api.Server)
-        server.id = 1
-        server.name = 'serverName'
-        self.servers = (server,)
+        server_inner = base.Object()
+        server_inner.id = 1
+        server_inner.name = 'serverName'
+        self.servers = (api.Server(server_inner, None),)
 
     def test_index(self):
         self.mox.StubOutWithMock(api, 'server_list')
@@ -171,9 +171,9 @@ class InstanceViewTests(base.BaseViewTests):
 
         self.mox.ReplayAll()
 
-        res = self.client.get(reverse('dash_usage', args=[self.TEST_TENANT]))
+        res = self.client.get(reverse('usage', args=[self.TEST_TENANT]))
 
-        self.assertTemplateUsed(res, 'dash_usage.html')
+        self.assertTemplateUsed(res, 'user/usage.html')
 
         self.assertEqual(res.context['usage'], TEST_RETURN)
 
@@ -197,7 +197,7 @@ class InstanceViewTests(base.BaseViewTests):
 
         self.mox.ReplayAll()
 
-        res = self.client.get(reverse('dash_usage', args=[self.TEST_TENANT]))
+        res = self.client.get(reverse('usage', args=[self.TEST_TENANT]))
 
         self.assertTemplateUsed(res, 'dash_usage.html')
 
