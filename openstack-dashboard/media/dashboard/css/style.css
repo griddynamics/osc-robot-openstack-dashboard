@@ -447,7 +447,7 @@ td#actions input[type="submit"]:hover { text-decoration: underline; }
 .message_box {
   font-size: 24px;
   width: 100%;
-  min-width: 758px;
+  min-width: 100%;
   margin: 0 0 25px 0;
   padding: 0 0 0 0;
   float: left;
@@ -503,7 +503,7 @@ td#actions input[type="submit"]:hover { text-decoration: underline; }
 .status_box {
   font-size: 24px;
   width: 100%;
-  min-width: 750px;
+  min-width: 100%;
   float: left;
   border: 1px solid;
   -webkit-border-radius: 5px;
