@@ -484,7 +484,7 @@ def token_info(request, token):
     # part of token_create.  May require modification of openstackx so that the
     # token_create call returns this information as well
     hdrs = {"Content-type": "application/json",
-            "X_AUTH_TOKEN": settings.OPENSTACK_ADMIN_TOKEN,
+            "X-Auth-Token": token.id,
             "Accept": "text/json"}
 
     o = urlparse(token.serviceCatalog['identity'][0]['adminURL'])
