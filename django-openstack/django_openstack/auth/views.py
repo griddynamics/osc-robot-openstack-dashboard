@@ -29,8 +29,10 @@ from django.conf import settings
 from django_openstack import api
 from django_openstack import forms
 from openstackx.api import exceptions as api_exceptions
+from django_openstack.urls import get_panel_name
 
 
+panel = get_panel_name(__file__)
 urlpatterns = patterns(__name__,
     url(r'login/$', 'login', name='auth_login'),
     url(r'logout/$', 'logout', name='auth_logout'),
