@@ -1,4 +1,4 @@
-{% extends 'admin/base.html' %}
+{% extends '_base.html' %}
 
 {% block sidebar %}
   {% with current_sidebar="tenants" %}
@@ -7,22 +7,22 @@
 {% endblock %}
 
 {% block page_header %}
-  {% include "_page_header.html" with title="Update Tenant Quotas" %}
+  {% include "_page_header.html" with title="Update Tenant" %}
 {% endblock page_header %}
 
 {% block _main %}
   <div class="dash_block">
     <div class="left">
-      {% include 'admin/_update_quotas_form.html' with form=form %}
+      {% include 'django_openstack//_update_tenant_form.html' %}
     </div>
 
     <div class="right">
       <h3>Description:</h3>
-      <p>From here you can edit quotas (max limits) for the tenant {{tenant_id}}.</p>
+      <p>From here you can edit a tenant.</p>
     </div>
+    <div class="clear">&nbsp;</div>
   </div>
 {% endblock %}
-
 
 
 

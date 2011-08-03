@@ -19,6 +19,8 @@
 #    under the License.
 
 import logging
+import glob
+import os
 
 from django import shortcuts
 from django.contrib import messages
@@ -47,3 +49,12 @@ class DashboardLogUnhandledExceptionsMiddleware(object):
 
         LOG.critical('Unhandled Exception in of type "%s" in dashboard.'
                      % type(exception), exc_info=True)
+
+
+topbar_list = glob.glob(os.path.dirname(os.path.abspath(__file__)) + '/templates/topbars/*html')
+topbar_list.sort()
+
+
+class TopbarMiddleware(object):
+    def process_request(self, request):
+        request.__class__.topbar_list = topbar_list

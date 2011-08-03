@@ -29,16 +29,48 @@ from django.conf import settings
 from django_openstack import api
 from django_openstack import forms
 from openstackx.api import exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
-
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 urlpatterns = patterns(__name__,
     url(r'login/$', 'login', name='auth_login'),
     url(r'logout/$', 'logout', name='auth_logout'),
     url(r'switch/(?P<tenant_id>[^/]+)/$', 'switch_tenants', name='auth_switch'),
 )
 LOG = logging.getLogger(__name__)
+std_roles = ['hardadmin', 'softadmin', 'projadmin', 'user']
+
+def handle_login(request, username, password, tenant):
+    try:
+        token = api.token_create(request, tenant, username, password)
+        info = api.token_info(request, token)
+        if not tenant:
+            for tenant_obj in api.token_list_tenants(request, token.id):
+                if not tenant_obj.enabled:
+                    continue
+                tenant = tenant_obj.id
+                token = api.token_create(request, tenant, username, password)
+                info = api.token_info(request, token)
+                break
+
+        request.session['token'] = token.id
+        request.session['username'] = username
+        request.session['password'] = password
+        request.session['tenant'] = tenant
+        request.session['roles'] = info['roles']
+        request.session['serviceCatalog'] = token.serviceCatalog
+        LOG.info('Login form for user "%s". Service Catalog data:\n%s' %
+                 (username, token.serviceCatalog))
+
+        return shortcuts.redirect('user')
+
+    except api_exceptions.Unauthorized as e:
+        msg = 'Error authenticating: %s' % e.message
+        LOG.error(msg, exc_info=True)
+        messages.error(request, msg)
+    except api_exceptions.ApiException as e:
+        messages.error(request, 'Error authenticating with keystone: %s' %
+                       e.message)
 
 
 class Login(forms.SelfHandlingForm):
@@ -47,44 +79,16 @@ class Login(forms.SelfHandlingForm):
                                widget=forms.PasswordInput(render_value=False))
 
     def handle(self, request, data):
-        try:
-            token = api.token_create(request,
-                                     data.get('tenant', ''),
-                                     data['username'],
-                                     data['password'])
-            info = api.token_info(request, token)
-
-            request.session['token'] = token.id
-            request.session['user'] = info['user']
-            request.session['tenant'] = data.get('tenant', info['tenant'])
-            request.session['admin'] = info['admin']
-            request.session['serviceCatalog'] = token.serviceCatalog
-            LOG.info('Login form for user "%s". Service Catalog data:\n%s' %
-                     (data['username'], token.serviceCatalog))
-
-            return shortcuts.redirect('user/overview')
-
-        except api_exceptions.Unauthorized as e:
-            msg = 'Error authenticating: %s' % e.message
-            LOG.error(msg, exc_info=True)
-            messages.error(request, msg)
-        except api_exceptions.ApiException as e:
-            messages.error(request, 'Error authenticating with keystone: %s' %
-                                     e.message)
-
-
-class LoginWithTenant(Login):
-    username = forms.CharField(max_length="20",
-                               widget=forms.TextInput(attrs={'readonly':'readonly'}))
-    tenant = forms.CharField(widget=forms.HiddenInput())
+        return handle_login(request, data['username'], data['password'], data.get('tenant', ''))
 
 
 def login(request):
     if request.user and request.user.is_authenticated():
-        if request.user.is_admin():
-            return shortcuts.redirect('projadmin/overview')
-        else:
-            return shortcuts.redirect('user/overview')
+        if not request.user.roles:
+            return shortcuts.redirect(std_roles[-1])
+        for role in std_roles:
+            if role in request.user.roles:
+                return shortcuts.redirect(role)
 
     form, handled = Login.maybe_handle(request)
     if handled:
@@ -96,16 +100,7 @@ def login(request):
 
 
 def switch_tenants(request, tenant_id):
-    form, handled = LoginWithTenant.maybe_handle(
-            request, initial={'tenant': tenant_id,
-                              'username': request.user.username})
-    if handled:
-        return handled
-
-    return shortcuts.render_to_response(panel + '/switch_tenants.html', {
-        'to_tenant': tenant_id,
-        'form': form,
-    }, context_instance=template.RequestContext(request))
+    return handle_login(request, request.session['username'], request.session['password'], tenant_id)
 
 
 def logout(request):

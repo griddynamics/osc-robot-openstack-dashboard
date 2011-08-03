@@ -41,14 +41,14 @@ from django_openstack import api
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 urlpatterns = patterns(__name__,
-    url(r'^services/$', 'index', name=panel + '/services'),
+    url(r'^$', 'index', name=topbar),
+    url(r'^servers/$', 'index', name=topbar + '/servers'),
 )
-
 LOG = logging.getLogger(__name__)
 
 
@@ -114,7 +114,7 @@ def index(request):
     other_services = sorted(other_services, key=lambda svc: (svc['type'] +
                                                              svc['host']))
 
-    return render_to_response(panel + '/service_view.html', {
+    return render_to_response(topbar + '/server_view.html', {
         'services': services,
         'service_toggle_enabled_form': ToggleService,
         'other_services': other_services,

@@ -32,10 +32,11 @@ from django_openstack.auth import views as auth_views
 @vary.vary_on_cookie
 def splash(request):
     if request.user:
-        if request.user.is_admin():
-            return shortcuts.redirect('projadmin/overview')
-        else:
-            return shortcuts.redirect('user/overview')
+        if not request.user.roles:
+            return shortcuts.redirect(auth_views.std_roles[-1])
+        for role in auth_views.std_roles:
+            if role in request.user.roles:
+                return shortcuts.redirect(role)
 
     form, handled = auth_views.Login.maybe_handle(request)
     if handled:

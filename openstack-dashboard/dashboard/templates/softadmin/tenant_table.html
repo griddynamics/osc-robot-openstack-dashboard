@@ -12,10 +12,10 @@
       <td>{{tenant.enabled}}</td>
       <td id="actions">
         <ul>
-          <li class="form">{% include "admin/tenant_delete_form.html" with form=tenant_delete_form %}</li>
-          <li><a href="{% url admin/tenant_update tenant.id %}">Edit</a></li>
-          <li><a href="{% url admin/tenant_users tenant.id %}">View Members</a></li>
-          <li><a href="{% url admin/tenant_quotas tenant.id %}">Modify Quotas</a></li>
+          <li class="form">{% include "softadmin/tenant_delete_form.html" with form=tenant_delete_form %}</li>
+          <li><a href="{% url softadmin/tenant_update tenant.id %}">Edit</a></li>
+          <li><a href="{% url softadmin/tenant_users tenant.id %}">View Members</a></li>
+          <li><a href="{% url softadmin/tenant_quotas tenant.id %}">Modify Quotas</a></li>
         </ul>
       </td>
     </tr>

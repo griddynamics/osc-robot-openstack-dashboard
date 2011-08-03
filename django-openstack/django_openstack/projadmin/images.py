@@ -31,16 +31,16 @@ from glance.common import exception as glance_exception
 
 from django_openstack import api
 from django_openstack import forms
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 INSTANCES = r'^instances/(?P<instance_id>[^/]+)/%s$'
 IMAGES = r'^images/(?P<image_id>[^/]+)/%s$'
 urlpatterns = patterns(__name__,
-    url(r'^images/$', 'index', name=panel + '/images'),
-    url(IMAGES % 'update', 'update', name=panel + '/images_update'),
-    #url(INSTANCES % 'vnc', 'vnc', name=panel + '/instances_vnc'),
+    url(r'^images/$', 'index', name=topbar + '/images'),
+    url(IMAGES % 'update', 'update', name=topbar + '/images_update'),
+    #url(INSTANCES % 'vnc', 'vnc', name=topbar + '/instances_vnc'),
 )
 
 LOG = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ def index(request):
         LOG.error("Error retrieving image list", exc_info=True)
         messages.error(request, "Error retrieving image list: %s" % e.message)
 
-    return render_to_response(panel + '/image_view.html', {
+    return render_to_response(topbar + '/image_view.html', {
         'delete_form': delete_form,
         'toggle_form': toggle_form,
         'images': images,
@@ -170,14 +170,14 @@ def update(request, image_id):
                           exc_info=True)
                 messages.error(request,
                                "Image could not be updated, please try again.")
-            return redirect(panel + "/images")
+            return redirect(topbar + "/images")
         else:
             LOG.error('Image "%s" failed to update' % image['name'],
                       exc_info=True)
             messages.error(request,
                            "Image could not be uploaded, please try agian.")
             form = UpdateImageForm(request.POST)
-            return render_to_response(panel + '/image_update.html',{
+            return render_to_response(topbar + '/image_update.html',{
                 'image': image,
                 'form': form,
             }, context_instance = template.RequestContext(request))
@@ -195,7 +195,7 @@ def update(request, image_id):
                 'disk_format': image.get('disk_format', ''),
             })
 
-        return render_to_response(panel + '/image_update.html',{
+        return render_to_response(topbar + '/image_update.html',{
             'image': image,
             'form': form,
         }, context_instance = template.RequestContext(request))
@@ -234,13 +234,13 @@ def upload(request):
             messages.error(request,
                            "Image could not be uploaded, please try agian.")
             form = UploadImageForm(request.POST)
-            return render_to_response('django_nova_syspanel/images/image_upload.html',{
+            return render_to_response('django_nova_systopbar/images/image_upload.html',{
                 'form': form,
             }, context_instance = template.RequestContext(request))
 
-        return redirect(panel + '/images')
+        return redirect(topbar + '/images')
     else:
         form = UploadImageForm()
-        return render_to_response('django_nova_syspanel/images/image_upload.html',{
+        return render_to_response('django_nova_systopbar/images/image_upload.html',{
             'form': form,
         }, context_instance = template.RequestContext(request))

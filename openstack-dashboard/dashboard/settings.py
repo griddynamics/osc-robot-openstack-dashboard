@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'dashboard.middleware.DashboardLogUnhandledExceptionsMiddleware',
+    'dashboard.middleware.TopbarMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

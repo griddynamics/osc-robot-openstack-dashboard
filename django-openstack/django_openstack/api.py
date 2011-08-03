@@ -490,17 +490,14 @@ def token_info(request, token):
     o = urlparse(token.serviceCatalog['identity'][0]['adminURL'])
     conn = httplib.HTTPConnection(o.hostname, o.port)
     conn.request("GET", "/v2.0/tokens/%s" % token.id, headers=hdrs)
-    response = conn.getresponse()
-    data = json.loads(response.read())
+    response_read = conn.getresponse().read()
+    data = json.loads(response_read)
 
-    admin = False
+    roles = set()
     for role in data['auth']['user']['roleRefs']:
-        if role['roleId'] == 'Admin':
-            admin = True
+        roles.add(role['roleId'])
 
-    return {'tenant': data['auth']['user']['tenantId'],
-            'user': data['auth']['user']['username'],
-            'admin': admin}
+    return {'roles': roles, 'data': data}
 
 
 @check_openstackx

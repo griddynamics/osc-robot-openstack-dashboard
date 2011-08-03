@@ -38,15 +38,16 @@ from django_openstack import api
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 USERS = r'^users/(?P<user_id>[^/]+)/%s$'
 
 urlpatterns = patterns(__name__,
-    url(r'^users/$', 'index', name=panel + '/users'),
-    url(USERS % 'update', 'update', name=panel + '/users_update'),
-    url(r'^users/create$', 'create', name=panel + '/users_create'),
+    url(r'^$', 'index', name=topbar),
+    url(r'^users/$', 'index', name=topbar + '/users'),
+    url(USERS % 'update', 'update', name=topbar + '/users_update'),
+    url(r'^users/create$', 'create', name=topbar + '/users_create'),
 )
 LOG = logging.getLogger(__name__)
 
@@ -115,7 +116,7 @@ def index(request):
     user_delete_form = UserDeleteForm()
     user_enable_disable_form = UserEnableDisableForm()
     
-    return shortcuts.render_to_response(panel + '/user_view.html', {
+    return shortcuts.render_to_response(topbar + '/user_view.html', {
         'users': users,
         'user_delete_form': user_delete_form,
         'user_enable_disable_form': user_enable_disable_form,
@@ -142,14 +143,14 @@ def update(request, user_id):
             messages.success(request,
                              'Updated %s for %s.'
                              % (', '.join(updated), user_id))
-            return redirect(panel + '/users')
+            return redirect(topbar + '/users')
         else:
             # TODO add better error management
             messages.error(request, 'Unable to update user,\
                                     please try again.')
 
             return render_to_response(
-            panel + '/user_update.html',{
+            topbar + '/user_update.html',{
                 'form': form,
                 'user_id': user_id,
             }, context_instance = template.RequestContext(request))
@@ -172,7 +173,7 @@ def update(request, user_id):
                                  'email': email},
                                  tenant_list=tenants)
         return render_to_response(
-        panel + '/user_update.html',{
+        topbar + '/user_update.html',{
             'form': form,
             'user_id': user_id,
         }, context_instance = template.RequestContext(request))
@@ -185,7 +186,7 @@ def create(request):
     except api_exceptions.ApiException, e:
         messages.error(request, 'Unable to retrieve tenant list: %s' %
                                  e.message)
-        return redirect(panel + '/users')
+        return redirect(topbar + '/users')
 
     if request.method == "POST":
         form = UserForm(request.POST, tenant_list=tenants)
@@ -207,7 +208,7 @@ def create(request):
                 messages.success(request,
                                  '%s was successfully created.'
                                  % user['id'])
-                return redirect(panel + '/users')
+                return redirect(topbar + '/users')
 
             except api_exceptions.ApiException, e:
                 LOG.error('ApiException while creating user\n'
@@ -217,16 +218,16 @@ def create(request):
                 messages.error(request,
                                  'Error creating user: %s'
                                  % e.message)
-                return redirect(panel + '/users')
+                return redirect(topbar + '/users')
         else:
             return render_to_response(
-            panel + '/user_create.html',{
+            topbar + '/user_create.html',{
                 'form': form,
             }, context_instance = template.RequestContext(request))
 
     else:
         form = UserForm(tenant_list=tenants)
         return render_to_response(
-        panel + '/user_create.html',{
+        topbar + '/user_create.html',{
             'form': form,
         }, context_instance = template.RequestContext(request))

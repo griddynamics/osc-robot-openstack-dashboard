@@ -22,31 +22,28 @@ from django.contrib import messages
 from django import shortcuts
 import openstackx
 import openstack
-
+import traceback
 
 class User(object):
-    def __init__(self, token, user, tenant, admin, service_catalog):
+    def __init__(self, token, username, tenant, roles, service_catalog):
         self.token = token
-        self.username = user
+        self.username = username
         self.tenant = tenant
-        self.admin = admin
+        self.roles = roles
         self.service_catalog = service_catalog
 
     def is_authenticated(self):
         # TODO: deal with token expiration
         return self.token
 
-    def is_admin(self):
-        return self.admin
-
 
 def get_user_from_request(request):
-    if 'user' not in request.session:
+    if 'username' not in request.session:
         return User(None,None,None,None,None)
     return User(request.session['token'],
-                request.session['user'],
+                request.session['username'],
                 request.session['tenant'],
-                request.session['admin'],
+                request.session['roles'],
                 request.session['serviceCatalog'])
 
 

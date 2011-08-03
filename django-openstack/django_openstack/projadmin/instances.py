@@ -35,19 +35,21 @@ from django_openstack import api
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 INSTANCES = r'^instances/(?P<instance_id>[^/]+)/%s$'
 urlpatterns = patterns(__name__,
+    url(r'^$', 'usage', name=topbar),
+    url(r'^overview/$', 'usage', name=topbar + '/overview'),
     url(r'^usage/(?P<tenant_id>[^/]+)$', 'tenant_usage',
-        name=panel + '/tenant_usage'),
-    url(r'^instances/$', 'index', name=panel + '/instances'),
-    url(r'^instances/refresh$', 'refresh', name=panel + '/instances_refresh'),
+        name=topbar + '/tenant_usage'),
+    url(r'^instances/$', 'index', name=topbar + '/instances'),
+    url(r'^instances/refresh$', 'refresh', name=topbar + '/instances_refresh'),
     # NOTE(termie): currently just using the 'dash' versions
-    #url(INSTANCES % 'console', 'console', name=panel + '/instances_console'),
-    #url(INSTANCES % 'vnc', 'vnc', name=panel + '/instances_vnc'),
+    #url(INSTANCES % 'console', 'console', name=topbar + '/instances_console'),
+    #url(INSTANCES % 'vnc', 'vnc', name=topbar + '/instances_vnc'),
 )
 
 
@@ -107,7 +109,7 @@ def usage(request):
     global_summary.human_readable('ram_size')
 
     return render_to_response(
-    panel + '/usage.html',{
+    topbar + '/usage.html',{
         'dateform': dateform,
         'usage_list': global_summary.usage_list,
         'global_summary': global_summary.summary,
@@ -149,7 +151,7 @@ def tenant_usage(request, tenant_id):
             else:
                 running_instances.append(i)
 
-    return render_to_response(panel + '/tenant_usage.html', {
+    return render_to_response(topbar + '/tenant_usage.html', {
         'dateform': dateform,
         'usage': usage,
         'instances': running_instances + terminated_instances,
@@ -176,7 +178,7 @@ def index(request):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return render_to_response(panel + '/instances.html', {
+    return render_to_response(topbar + '/instances.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,
@@ -200,7 +202,7 @@ def refresh(request):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return render_to_response(panel + '/_syspanel_instance_list.html', {
+    return render_to_response(topbar + '/_systopbar_instance_list.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,

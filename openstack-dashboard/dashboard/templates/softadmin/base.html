@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block topbar %}
-  {% with current_topbar="sysop" %}
+  {% with current_topbar="softadmin" %}
     {{block.super}}
   {% endwith %}
 {% endblock %}
 {% block sidebar %}
-  {% include 'sysop/sidebar.html' %}
+  {% include 'softadmin/sidebar.html' %}
 {% endblock %}
 
 {% block main %}  

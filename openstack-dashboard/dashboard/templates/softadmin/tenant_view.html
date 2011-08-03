@@ -1,4 +1,4 @@
-{% extends 'admin/base.html' %}
+{% extends 'softadmin/base.html' %}
 
 {% block sidebar %}
   {% with current_sidebar="tenants" %}
@@ -13,8 +13,8 @@
 {% endblock page_header %}
 
 {% block _main %}
-  {% include "admin/tenant_table.html" %}
-  <a id="tenant_create_link" class="action_link large-rounded" href="{% url admin/tenant_create %}">Create New Tenant </a>
+  {% include "softadmin/tenant_table.html" %}
+  <a id="tenant_create_link" class="action_link large-rounded" href="{% url softadmin/tenant_create %}">Create New Tenant </a>
 {% endblock %}
 
 

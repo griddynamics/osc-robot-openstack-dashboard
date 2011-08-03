@@ -37,17 +37,17 @@ from django_openstack import api
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 TENANTS = r'^tenants/(?P<tenant_id>[^/]+)/%s$'
 urlpatterns = patterns(__name__,
-    url(r'^tenants/$', 'index', name=panel + '/tenants'),
-    url(r'^tenants/create$', 'create', name=panel + '/tenant_create'),
-    url(TENANTS % 'update', 'update', name=panel + '/tenant_update'),
-    url(TENANTS % 'users', 'users', name=panel + '/tenant_users'),
-    url(TENANTS % 'quotas', 'quotas', name=panel + '/tenant_quotas'),
+    url(r'^tenants/$', 'index', name=topbar + '/tenants'),
+    url(r'^tenants/create$', 'create', name=topbar + '/tenant_create'),
+    url(TENANTS % 'update', 'update', name=topbar + '/tenant_update'),
+    url(TENANTS % 'users', 'users', name=topbar + '/tenant_users'),
+    url(TENANTS % 'quotas', 'quotas', name=topbar + '/tenant_quotas'),
 )
 LOG = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class AddUser(forms.SelfHandlingForm):
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create user association: %s' %
                            (e.message))
-        return redirect(panel + '/tenants')
+        return redirect(topbar + '/tenants')
 
 
 class RemoveUser(forms.SelfHandlingForm):
@@ -83,7 +83,7 @@ class RemoveUser(forms.SelfHandlingForm):
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create tenant: %s' %
                            (e.message))
-        return redirect(panel + '/tenants')
+        return redirect(topbar + '/tenants')
 
 
 class CreateTenant(forms.SelfHandlingForm):
@@ -108,7 +108,7 @@ class CreateTenant(forms.SelfHandlingForm):
                       exc_info=True)
             messages.error(request, 'Unable to create tenant: %s' %
                            (e.message))
-        return redirect(panel + '/tenants')
+        return redirect(topbar + '/tenants')
 
 
 class UpdateTenant(forms.SelfHandlingForm):
@@ -132,7 +132,7 @@ class UpdateTenant(forms.SelfHandlingForm):
                       (data['id'], data['description'], data['enabled']),
                       exc_info=True)
             messages.error(request, 'Unable to update tenant: %s' % e.message)
-        return redirect(panel + '/tenants')
+        return redirect(topbar + '/tenants')
 
 
 class UpdateQuotas(forms.SelfHandlingForm):
@@ -166,7 +166,7 @@ class UpdateQuotas(forms.SelfHandlingForm):
                              % data['tenant_id'])
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to update quotas: %s' % e.message)
-        return redirect(panel + '/tenants')
+        return redirect(topbar + '/tenants')
 
 
 @login_required
@@ -178,7 +178,7 @@ def index(request):
         LOG.error('ApiException while getting tenant list', exc_info=True)
         messages.error(request, 'Unable to get tenant info: %s' % e.message)
     tenants.sort(key=lambda x: x.id, reverse=True)
-    return render_to_response(panel + '/tenant_view.html',{
+    return render_to_response(topbar + '/tenant_view.html',{
         'tenants': tenants,
     }, context_instance = template.RequestContext(request))
 
@@ -190,7 +190,7 @@ def create(request):
         return handled
 
     return render_to_response(
-    panel + '/tenant_create.html',{
+    topbar + '/tenant_create.html',{
         'form': form,
     }, context_instance = template.RequestContext(request))
 
@@ -211,10 +211,10 @@ def update(request, tenant_id):
             LOG.error('Error fetching tenant with id "%s"' % tenant_id,
                       exc_info=True)
             messages.error(request, 'Unable to update tenant: %s' % e.message)
-            return redirect(panel + '/tenants')
+            return redirect(topbar + '/tenants')
 
     return render_to_response(
-    panel + '/tenant_update.html',{
+    topbar + '/tenant_update.html',{
         'form': form,
     }, context_instance = template.RequestContext(request))
 
@@ -243,7 +243,7 @@ def users(request, tenant_id):
         if i in new_user_ids:
             new_user_ids.remove(i)
     return render_to_response(
-    panel + '/tenant_users.html',{
+    topbar + '/tenant_users.html',{
         'add_user_form': add_user_form,
         'remove_user_form': remove_user_form,
         'tenant_id': tenant_id,
@@ -275,7 +275,7 @@ def quotas(request, tenant_id):
     form = UpdateQuotas(initial=quota_set)
 
     return render_to_response(
-    panel + '/tenant_quotas.html',{
+    topbar + '/tenant_quotas.html',{
         'form': form,
         'tenant_id': tenant_id,
         'quotas': quotas,

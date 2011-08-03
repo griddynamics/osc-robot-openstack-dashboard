@@ -40,15 +40,15 @@ from django_openstack import api
 from django_openstack import forms
 from openstackx.api import exceptions as api_exceptions
 from glance.common import exception as glance_exception
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 IMAGES = r'^(?P<tenant_id>[^/]+)/images/(?P<image_id>[^/]+)/%s$'
 
 urlpatterns = patterns(__name__,
-    url(r'^(?P<tenant_id>[^/]+)/images/$', 'index', name=panel + '/images'),
-    url(IMAGES % 'launch', 'launch', name=panel + '/images_launch'),
+    url(r'^(?P<tenant_id>[^/]+)/images/$', 'index', name=topbar + '/images'),
+    url(IMAGES % 'launch', 'launch', name=topbar + '/images_launch'),
 )
 
 LOG = logging.getLogger(__name__)
@@ -104,7 +104,7 @@ class LaunchForm(forms.SelfHandlingForm):
             msg = 'Instance was successfully launched'
             LOG.info(msg)
             messages.success(request, msg)
-            return redirect(panel + '/instances', tenant_id)
+            return redirect(topbar + '/instances', tenant_id)
 
         except api_exceptions.ApiException, e:
             LOG.error('ApiException while creating instances of image "%s"' %
@@ -138,7 +138,7 @@ def index(request, tenant_id):
     images = [im for im in all_images
               if im['container_format'] not in ['aki', 'ari']]
 
-    return render_to_response(panel + '/image_view.html', {
+    return render_to_response(topbar + '/image_view.html', {
         'tenant': tenant,
         'images': images,
     }, context_instance=template.RequestContext(request))
@@ -178,7 +178,7 @@ def launch(request, tenant_id, image_id):
     except Exception, e:
         messages.error(request, 'Error parsing quota  for %s: %s' %
                                  (image_id, e.message))
-        return redirect(panel + '/instances', tenant_id)
+        return redirect(topbar + '/instances', tenant_id)
 
     form, handled = LaunchForm.maybe_handle(
             request, initial={'flavorlist': flavorlist(),
@@ -188,7 +188,7 @@ def launch(request, tenant_id, image_id):
     if handled:
         return handled
 
-    return render_to_response(panel + '/image_launch.html', {
+    return render_to_response(topbar + '/image_launch.html', {
         'tenant': tenant,
         'image': image,
         'form': form,

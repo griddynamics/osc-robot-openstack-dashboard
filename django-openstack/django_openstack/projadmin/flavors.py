@@ -35,13 +35,13 @@ from openstackx.api import exceptions as api_exceptions
 
 from django_openstack import api
 from django_openstack import forms
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 urlpatterns = patterns(__name__,
-    url(r'^flavors/$', 'index', name=panel + '/flavors'),
-    url(r'^flavors/create/$', 'create', name=panel + '/flavors_create'),
+    url(r'^flavors/$', 'index', name=topbar + '/flavors'),
+    url(r'^flavors/create/$', 'create', name=topbar + '/flavors_create'),
 )
 
 LOG = logging.getLogger(__name__)
@@ -64,7 +64,7 @@ class CreateFlavor(forms.SelfHandlingForm):
         msg = '%s was successfully added to flavors.' % data['name']
         LOG.info(msg)
         messages.success(request, msg)
-        return redirect(panel + '/flavor')
+        return redirect(topbar + '/flavor')
 
 
 class DeleteFlavor(forms.SelfHandlingForm):
@@ -100,7 +100,7 @@ def index(request):
         messages.error(request, 'Unable to get usage info: %s' % e.message)
 
     flavors.sort(key=lambda x: x.id, reverse=True)
-    return render_to_response(panel + '/flavor_view.html',{
+    return render_to_response(topbar + '/flavor_view.html',{
         'delete_form': delete_form,
         'flavors': flavors,
     }, context_instance = template.RequestContext(request))
@@ -118,7 +118,7 @@ def create(request):
     global_summary.human_readable('disk_size')
     global_summary.human_readable('ram_size')
 
-    return render_to_response(panel + '/flavor_create.html',{
+    return render_to_response(topbar + '/flavor_create.html',{
         'global_summary': global_summary.summary,
         'form': form,
     }, context_instance = template.RequestContext(request))

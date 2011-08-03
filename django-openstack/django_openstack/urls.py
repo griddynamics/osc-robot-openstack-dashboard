@@ -23,23 +23,22 @@ from django.conf import settings
 import os
 from glob import glob
 
-def get_panel_name(file_name):
+
+def get_topbar_name(file_name):
     return os.path.basename(os.path.dirname(os.path.abspath(file_name)))
 
 
 urlpatterns = []
-panels = ['user', 'projadmin', 'admin', 'sysop', 'userman', 'auth']
 
-for panel in panels:
-    for tab_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/" + panel + "/*.py"):
-        tab = os.path.basename(tab_file)[:-3]
-        if tab == "urls" or tab == "__init__":
-            continue
-        tab_module = __import__("django_openstack" + "." + panel + "." + tab, 
-                                fromlist="django_openstack." + panel)
-        try:
-            tab_module.urlpatterns
-        except:
-            continue
-        urlpatterns += patterns('', url(r'^' + panel + '/', 
-                                        include('django_openstack.' + panel + "." + tab)))
+for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py"):
+    topbar = os.path.basename(os.path.dirname(pattern_file))
+    sidebar = os.path.basename(pattern_file)[:-3]
+    if sidebar == "__init__":
+        continue
+    sidebar_module_name = "django_openstack" + "." + topbar + "." + sidebar
+    sidebar_module = __import__(sidebar_module_name, fromlist="django_openstack." + topbar)
+    try:
+        sidebar_module.urlpatterns
+    except:
+        continue
+    urlpatterns += patterns('', url(r'^' + topbar + '/', include(sidebar_module_name)))

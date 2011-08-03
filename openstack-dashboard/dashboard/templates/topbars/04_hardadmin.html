@@ -1,0 +1,3 @@
+{% if "hardadmin" in request.user.roles %}
+<li><a {% if current_topbar == "hardadmin" %} class="active" {% endif %} href="{% url hardadmin %}">Hardware Admin</a></li>
+{% endif %}

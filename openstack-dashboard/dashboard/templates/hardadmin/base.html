@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block topbar %}
-  {% with current_topbar="admin" %}
+  {% with current_topbar="hardadmin" %}
     {{block.super}}
   {% endwith %}
 {% endblock %}
 {% block sidebar %}
-  {% include 'admin/sidebar.html' %}
+  {% include 'hardadmin/sidebar.html' %}
 {% endblock %}
 
 {% block main %}  

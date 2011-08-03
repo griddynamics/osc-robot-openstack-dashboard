@@ -2,22 +2,16 @@
   <ul id="main_nav">
     <li id="home_link"><h1><a href='{% url splash %}'>OpenStack Dashboard</a></h1></li>
     {% if request.user %}
-      <li><a {% if current_topbar == "user" %} class="active" {% endif %} href="{% url user/overview %}">User</a></li>
- 
-      <li><a {% if current_topbar == "projadmin" %} class="active" {% endif %} href="{% url projadmin/overview %}">Project Admin</a></li>
-
-      <li><a {% if current_topbar == "admin" %} class="active" {% endif %} href="{% url admin/services %}">Software Admin</a></li>
-
-      <li><a {% if current_topbar == "sysop" %} class="active" {% endif %} href="{% url sysop/servers %}">Hardware Admin</a></li>
-      
-      <li><a {% if current_topbar == "userman" %} class="active" {% endif %} href="{% url userman/users %}">User Management</a></li>
+      {% for topbar in request.topbar_list %}
+        {% include topbar %}
+	  {% endfor %}
     {% else %}
       NOT _LOGGED_IN_TOPBAR
     {% endif %}
   </ul>
   
   <div id="user_bar">
-    <a id="current_tenant" href="{% url user/overview %}">
+    <a id="current_tenant" href="{% url user %}">
       <h4>{{request.user.tenant}}</h4>
       <span>as {{request.user.username}}</span>
     </a>

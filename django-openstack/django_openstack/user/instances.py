@@ -38,18 +38,20 @@ from django_openstack import forms
 from django_openstack import utils
 import openstack.compute.servers
 import openstackx.api.exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 INSTANCES = r'^(?P<tenant_id>[^/]+)/instances/(?P<instance_id>[^/]+)/%s$'
 
 urlpatterns = patterns(__name__,
-    url(r'^(?P<tenant_id>[^/]+)/$', 'usage', name=panel + '/usage'),
-    url(r'^(?P<tenant_id>[^/]+)/instances/$', 'index', name=panel + '/instances'),
-    url(r'^(?P<tenant_id>[^/]+)/instances/refresh$', 'refresh', name=panel + '/instances_refresh'),
-    url(INSTANCES % 'console', 'console', name=panel + '/instances_console'),
-    url(INSTANCES % 'vnc', 'vnc', name=panel + '/instances_vnc'),
-    url(INSTANCES % 'update', 'update', name=panel + '/instances_update'),
+    url(r'^$', 'usage', name=topbar),
+    url(r'^overview/$', 'usage', name=topbar + '/overview'),
+    url(r'^(?P<tenant_id>[^/]+)/$', 'usage', name=topbar + '/usage'),
+    url(r'^(?P<tenant_id>[^/]+)/instances/$', 'index', name=topbar + '/instances'),
+    url(r'^(?P<tenant_id>[^/]+)/instances/refresh$', 'refresh', name=topbar + '/instances_refresh'),
+    url(INSTANCES % 'console', 'console', name=topbar + '/instances_console'),
+    url(INSTANCES % 'vnc', 'vnc', name=topbar + '/instances_vnc'),
+    url(INSTANCES % 'update', 'update', name=topbar + '/instances_update'),
 )
 
 LOG = logging.getLogger(__name__)
@@ -124,7 +126,7 @@ def index(request, tenant_id):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return shortcuts.render_to_response(panel + '/instance_view.html', {
+    return shortcuts.render_to_response(topbar + '/instance_view.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,
@@ -143,7 +145,7 @@ def refresh(request, tenant_id):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return shortcuts.render_to_response(panel + '/instance_list.html', {
+    return shortcuts.render_to_response(topbar + '/instance_list.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,
@@ -194,7 +196,7 @@ def usage(request, tenant_id=None):
     if show_terminated:
         instances += terminated_instances
 
-    return shortcuts.render_to_response(panel + '/usage.html', {
+    return shortcuts.render_to_response(topbar + '/usage.html', {
         'usage': usage,
         'ram_unit': ram_unit,
         'total_ram': total_ram,
@@ -218,7 +220,7 @@ def console(request, tenant_id, instance_id):
         messages.error(request,
                    'Unable to get log for instance %s: %s' %
                    (instance_id, e.message))
-        return shortcuts.redirect(panel + '/instances', tenant_id)
+        return shortcuts.redirect(topbar + '/instances', tenant_id)
 
 
 @login_required
@@ -234,7 +236,7 @@ def vnc(request, tenant_id, instance_id):
         messages.error(request,
                    'Unable to get vnc console for instance %s: %s' %
                    (instance_id, e.message))
-        return shortcuts.redirect(panel + '/instances', tenant_id)
+        return shortcuts.redirect(topbar + '/instances', tenant_id)
 
 
 @login_required
@@ -253,7 +255,7 @@ def update(request, tenant_id, instance_id):
                 messages.error(request,
                            'Unable to update instance: %s' % e.message)
 
-            return redirect(panel + '/instances', tenant_id)
+            return redirect(topbar + '/instances', tenant_id)
     else:
         instance = api.server_get(request, instance_id)
         form = UpdateInstance(initial={'instance': instance_id,
@@ -261,7 +263,7 @@ def update(request, tenant_id, instance_id):
                                        'name': instance.name,
                                        'description': instance.attrs['description']})
 
-    return render_to_response(panel + '/instance_update.html', {
+    return render_to_response(topbar + '/instance_update.html', {
         'instance': instance,
         'form': form,
     }, context_instance=template.RequestContext(request))

@@ -37,15 +37,15 @@ from django.utils.translation import ugettext as _
 from django_openstack import api
 from django_openstack import forms
 import openstackx.api.exceptions as api_exceptions
-from django_openstack.urls import get_panel_name
+from django_openstack.urls import get_topbar_name
 
 
-panel = get_panel_name(__file__)
+topbar = get_topbar_name(__file__)
 KEYPAIRS = r'^(?P<tenant_id>[^/]+)/keypairs/%s$'
 
 urlpatterns = patterns(__name__,
-    url(r'^(?P<tenant_id>[^/]+)/keypairs/$', 'index', name=panel + '/keypairs'),
-    url(KEYPAIRS % 'create', 'create', name=panel + '/keypairs_create'),
+    url(r'^(?P<tenant_id>[^/]+)/keypairs/$', 'index', name=topbar + '/keypairs'),
+    url(KEYPAIRS % 'create', 'create', name=topbar + '/keypairs_create'),
 )
 
 LOG = logging.getLogger(__name__)
@@ -125,7 +125,7 @@ def index(request, tenant_id):
         LOG.error("ApiException in keypair index", exc_info=True)
         messages.error(request, 'Error fetching keypairs: %s' % e.message)
 
-    return shortcuts.render_to_response(panel + '/keypair_view.html', {
+    return shortcuts.render_to_response(topbar + '/keypair_view.html', {
         'keypairs': keypairs,
         'delete_form': delete_form,
     }, context_instance=template.RequestContext(request))
@@ -138,6 +138,6 @@ def create(request, tenant_id):
     if handled:
         return handled
 
-    return shortcuts.render_to_response(panel + '/keypair_create.html', {
+    return shortcuts.render_to_response(topbar + '/keypair_create.html', {
         'create_form': form,
     }, context_instance=template.RequestContext(request))
