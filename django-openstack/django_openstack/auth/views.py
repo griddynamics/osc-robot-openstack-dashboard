@@ -38,7 +38,6 @@ urlpatterns = patterns(__name__,
     url(r'switch/(?P<tenant_id>[^/]+)/$', 'switch_tenants', name='auth_switch'),
 )
 LOG = logging.getLogger(__name__)
-std_roles = ['hardadmin', 'softadmin', 'projadmin', 'user']
 
 def handle_login(request, username, password, tenant):
     try:
@@ -85,8 +84,8 @@ class Login(forms.SelfHandlingForm):
 def login(request):
     if request.user and request.user.is_authenticated():
         if not request.user.roles:
-            return shortcuts.redirect(std_roles[-1])
-        for role in std_roles:
+            return shortcuts.redirect(settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
+        for role in settings.OPENSTACK_KEYSTONE_ROLES:
             if role in request.user.roles:
                 return shortcuts.redirect(role)
 

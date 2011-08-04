@@ -64,10 +64,10 @@ class AddUser(forms.SelfHandlingForm):
                              '%s was successfully added to %s.'
                              % (data['user'], data['tenant']))
         except api_exceptions.ApiException, e:
-            messages.error(request, 'Unable to create user association: %s' %
-                           (e.message))
+            messages.error(request, 'Unable to create user association: %s | %s' %
+                           (e.message, settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE))
         return redirect(topbar + '/tenants')
-
+#OPENSTACK_KEYSTONE_ROLES
 
 class RemoveUser(forms.SelfHandlingForm):
     user = forms.CharField()

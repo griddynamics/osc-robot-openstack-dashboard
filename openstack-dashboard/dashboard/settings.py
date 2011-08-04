@@ -133,4 +133,6 @@ if DEBUG:
     except ImportError:
         logging.info('Running in debug mode without debug_toolbar.')
 
-OPENSTACK_KEYSTONE_DEFAULT_ROLE='Member'
+OPENSTACK_KEYSTONE_ROLES = ('hardadmin', 'softadmin', 'projadmin', 'user')
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = OPENSTACK_KEYSTONE_ROLES[-1]
+

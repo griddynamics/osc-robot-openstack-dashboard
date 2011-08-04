@@ -23,6 +23,7 @@ Views for home page.
 """
 from django import template
 from django import shortcuts
+from django.conf import settings
 from django.views.decorators import vary
 
 from django_openstack import api
@@ -33,8 +34,8 @@ from django_openstack.auth import views as auth_views
 def splash(request):
     if request.user:
         if not request.user.roles:
-            return shortcuts.redirect(auth_views.std_roles[-1])
-        for role in auth_views.std_roles:
+            return shortcuts.redirect(settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
+        for role in settings.OPENSTACK_KEYSTONE_ROLES:
             if role in request.user.roles:
                 return shortcuts.redirect(role)
 
