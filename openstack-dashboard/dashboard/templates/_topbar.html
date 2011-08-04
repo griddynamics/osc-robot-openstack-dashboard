@@ -17,7 +17,7 @@
     </a>
     <a id="drop_btn" href="#">&nbsp;</a>
     <ul id="user_tenant_list">
-      <li class="title"><h4>Available Tenants</h4></li>
+      <li class="title"><h4>Available Projects</h4></li>
       {% for tenant in tenants %}
         {% if tenant.enabled %}
           <li><a href="{% url auth_switch tenant.id %}">{{tenant.id}}</a></li>
