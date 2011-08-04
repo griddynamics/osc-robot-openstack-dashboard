@@ -143,8 +143,3 @@ if DEBUG:
         MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     except ImportError:
         logging.info('Running in debug mode without debug_toolbar.')
-
-OPENSTACK_KEYSTONE_ROLES = ('hardadmin', 'softadmin', 'projadmin', 'user')
-OPENSTACK_KEYSTONE_DEFAULT_ROLE = OPENSTACK_KEYSTONE_ROLES[-1]
-OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE = OPENSTACK_KEYSTONE_ROLES[-2]
-

@@ -1,8 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2011 United States Government as represented by the
-# Administrator of the National Aeronautics and Space Administration.
-# All Rights Reserved.
+# Copyright 2011 Grid Dynamics Consulting Services, Inc.
+# All rights reserved.
 #
 # Copyright 2011 Fourth Paradigm Development, Inc.
 #
@@ -32,6 +31,7 @@ import logging
 from django.contrib import messages
 
 from django_openstack import api
+from django_openstack import auth
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
@@ -42,7 +42,6 @@ topbar = get_topbar_name(__file__)
 USERS = r'^users/(?P<tenant_id>[^/]+)/%s$'
 urlpatterns = patterns(__name__,
     url(r'^users/$', 'users', name=topbar + '/users'),
-    url(r'^users/create$', 'create', name=topbar + '/tenant_create'),
 )
 LOG = logging.getLogger(__name__)
 
@@ -54,7 +53,7 @@ class AddUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.add_for_tenant_user(data['tenant'],
-                    data['user'], settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
+                    data['user'], auth.Roles.DEFAULT)
             messages.success(request,
                              '%s was successfully added to %s.'
                              % (data['user'], data['tenant']))
@@ -70,7 +69,7 @@ class RemoveUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.delete_for_tenant_user(data['tenant'],
-                    data['user'], settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
+                    data['user'], auth.Roles.DEFAULT)
             messages.success(request,
                              '%s was successfully removed from %s.'
                              % (data['user'], data['tenant']))

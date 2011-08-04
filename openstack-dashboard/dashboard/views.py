@@ -27,6 +27,7 @@ from django.conf import settings
 from django.views.decorators import vary
 
 from django_openstack import api
+from django_openstack import auth
 from django_openstack.auth import views as auth_views
 
 
@@ -34,8 +35,8 @@ from django_openstack.auth import views as auth_views
 def splash(request):
     if request.user:
         if not request.user.roles:
-            return shortcuts.redirect(settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
-        for role in settings.OPENSTACK_KEYSTONE_ROLES:
+            return shortcuts.redirect(auth.Roles.DEFAULT)
+        for role in auth.Roles.ALL_ROLES:
             if role in request.user.roles:
                 return shortcuts.redirect(role)
 

@@ -8,7 +8,7 @@
 
 {% block page_header %}
   <div id='page_header'>
-    <h2>Users for Project: <span>{{tenant_id}}</span></h2>
+    <h2>Admins for Project: <span>{{tenant_id}}</span></h2>
   </div>
 {% endblock %}
 
@@ -39,11 +39,11 @@
   {% else %}
     <div class="message_box info">
       <h2>Info</h2>
-      <p>There are currently no users for this tenant</p>
+      <p>There are currently no admins for this project</p>
     </div>
   {% endif %}
   {% if new_users %}
-    <h3>Add new users</h3>
+    <h3>Add new admins</h3>
     <table class="wide">
       <tr id='headings'>
         <th>Name</th>

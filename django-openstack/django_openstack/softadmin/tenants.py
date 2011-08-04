@@ -33,7 +33,8 @@ import logging
 
 from django.contrib import messages
 
-from django_openstack import api
+from django_openstack import api 
+from django_openstack import auth
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
@@ -59,9 +60,9 @@ class AddUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.add_for_tenant_user(data['tenant'],
-                    data['user'], settings.OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE)
+                data['user'], auth.Roles.PROJECT_ADMIN)
             messages.success(request,
-                             '%s was successfully added to %s.'
+                             '%s was successfully added to admins of %s.'
                              % (data['user'], data['tenant']))
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create user association: %s' %
@@ -76,10 +77,10 @@ class RemoveUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.delete_for_tenant_user(data['tenant'],
-                    data['user'], settings.OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE)
+                    data['user'], auth.Roles.PROJECT_ADMIN)
             messages.success(request,
-                             '%s was successfully removed from %s.| %s'
-                             % (data['user'], data['tenant'], settings.OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE))
+                             '%s was successfully removed from admins of %s.'
+                             % (data['user'], data['tenant']))
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create tenant: %s' %
                            (e.message))
@@ -248,7 +249,7 @@ def users(request, tenant_id):
         'remove_user_form': remove_user_form,
         'tenant_id': tenant_id,
         'users': users,
-        'new_users': new_user_ids,
+        'new_users': new_user_ids2,
     }, context_instance = template.RequestContext(request))
 
 

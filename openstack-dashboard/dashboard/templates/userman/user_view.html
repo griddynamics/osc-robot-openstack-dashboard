@@ -18,14 +18,19 @@
       <tr>
         <th>ID</th>
         <th>Email</th>
-        <th>Default Tenant</th>
+        <th>Roles</th>
         <th>Options</th>
       </tr>
       {% for user in users %}
         <tr class="{% cycle 'odd' 'even' %}">
           <td>{{user.id}}{% if not user.enabled %} (disabled){% endif %}</td>
           <td>{{user.email}}</td>
-          <td>{{user.tenantId}}</td>
+          <td>
+            <ul>
+              {% if "softadmin" in user.roles %} <li>Software Admin</li>{% endif %}
+              {% if "hardadmin" in user.roles %} <li>Hardware Admin</li>{% endif %}
+            </ul>                
+          </td>
           <td id="actions">
             <ul>
               <li class="form">{% include "userman/user_enable_disable_form.html" with form=user_enable_disable_form %}</li>

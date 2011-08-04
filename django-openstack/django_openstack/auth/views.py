@@ -27,6 +27,7 @@ from django.conf.urls.defaults import *
 from django.conf import settings
 
 from django_openstack import api
+from django_openstack import auth
 from django_openstack import forms
 from openstackx.api import exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
@@ -84,8 +85,8 @@ class Login(forms.SelfHandlingForm):
 def login(request):
     if request.user and request.user.is_authenticated():
         if not request.user.roles:
-            return shortcuts.redirect(settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
-        for role in settings.OPENSTACK_KEYSTONE_ROLES:
+            return shortcuts.redirect(auth.Roles.DEFAULT)
+        for role in auth.Roles.ALL_ROLES:
             if role in request.user.roles:
                 return shortcuts.redirect(role)
 
