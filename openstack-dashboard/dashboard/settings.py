@@ -117,6 +117,17 @@ TOTAL_CLOUD_RAM_GB = 10
 SYSCONFDIR = '/etc'
 sys.path.insert(0, SYSCONFDIR + '/dashboard')
 
+
+def cut_admin_token(auth_filename):
+    with open(auth_filename, "rt") as auth_file:
+        for line in auth_file:
+            if line.startswith("admin_token"):
+                return line.split('=')[1].strip()
+
+
+OPENSTACK_ADMIN_TOKEN = cut_admin_token("/etc/nova/auth_token.ini")
+
+
 try:
     from local.local_settings import *
 except Exception, e:
