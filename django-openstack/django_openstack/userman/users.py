@@ -35,6 +35,7 @@ import logging
 from django.contrib import messages
 
 from django_openstack import api
+from django_openstack import auth
 from django_openstack import forms
 from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
@@ -131,7 +132,7 @@ def index(request):
 @login_required
 def update(request, user_id):
     if request.method == "POST":
-        victim_user_roles = request.session['victim_user_roles']
+        victim_user_roles = request.session['victim_user_roles'] if request.session.has_key('victim_user_roles') else set() 
         del request.session['victim_user_roles']
         form = get_user_form(request)(request.POST) 
         if form.is_valid():
@@ -144,7 +145,7 @@ def update(request, user_id):
                 updated.append('password')
                 api.user_update_password(request, user['id'], user['password'])
 
-            for admin_role in ['softadmin', 'hardadmin']:
+            for admin_role in [auth.Roles.SOFTWARE_ADMIN, auth.Roles.HARDWARE_ADMIN]:
                 field_name = 'is_' + admin_role
                 if user.has_key(field_name) and user[field_name] != (admin_role in victim_user_roles):                    
                     if user[field_name]:
@@ -206,6 +207,13 @@ def create(request):
                                 user['password'],
                                 None,
                                 True)
+                for admin_role in [auth.Roles.SOFTWARE_ADMIN, auth.Roles.HARDWARE_ADMIN]:
+                    field_name = 'is_' + admin_role
+                    if user.has_key(field_name):                    
+                        if user[field_name]:
+                            api.account_api(request).role_refs. \
+                                add_for_tenant_user(None, user['id'], admin_role)                    
+
                 messages.success(request,
                                  '%s was successfully created.'
                                  % user['id'])
