@@ -67,8 +67,8 @@ class AddUser(forms.SelfHandlingForm):
             messages.error(request, 'Unable to create user association: %s' %
                            (e.message))
         return redirect(topbar + '/tenants')
-#OPENSTACK_KEYSTONE_ROLES
 
+    
 class RemoveUser(forms.SelfHandlingForm):
     user = forms.CharField()
     tenant = forms.CharField()
