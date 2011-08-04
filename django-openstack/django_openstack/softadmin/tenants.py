@@ -64,8 +64,8 @@ class AddUser(forms.SelfHandlingForm):
                              '%s was successfully added to %s.'
                              % (data['user'], data['tenant']))
         except api_exceptions.ApiException, e:
-            messages.error(request, 'Unable to create user association: %s | %s' %
-                           (e.message, settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE))
+            messages.error(request, 'Unable to create user association: %s' %
+                           (e.message))
         return redirect(topbar + '/tenants')
 #OPENSTACK_KEYSTONE_ROLES
 
@@ -76,10 +76,10 @@ class RemoveUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.delete_for_tenant_user(data['tenant'],
-                    data['user'], 'Member')
+                    data['user'], settings.OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE)
             messages.success(request,
-                             '%s was successfully removed from %s.'
-                             % (data['user'], data['tenant']))
+                             '%s was successfully removed from %s.| %s'
+                             % (data['user'], data['tenant'], settings.OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE))
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create tenant: %s' %
                            (e.message))
