@@ -249,7 +249,7 @@ def users(request, tenant_id):
         'remove_user_form': remove_user_form,
         'tenant_id': tenant_id,
         'users': users,
-        'new_users': new_user_ids2,
+        'new_users': new_user_ids,
     }, context_instance = template.RequestContext(request))
 
 
