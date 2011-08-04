@@ -222,7 +222,31 @@ class Usage(APIResourceWrapper):
 
 class User(APIResourceWrapper):
     """Simple wrapper around openstackx.extras.users.User"""
-    _attrs = ['email', 'enabled', 'id', 'tenantId']
+    _attrs = ['email', 'enabled', 'id', 'tenantId', 'roles']
+
+    def __init__(self, apiresource):
+        APIResourceWrapper.__init__(self, apiresource)
+        if self._apiresource:
+            self._apiresource.roles = set()
+
+    def read_roles(self, token, serviceCatalog):
+        if not self._apiresource:
+            return
+        self._apiresource.roles = set()
+        hdrs = {"Content-type": "application/json",
+            "X-Auth-Token": settings.OPENSTACK_ADMIN_TOKEN,
+            "Accept": "text/json"}
+
+        o = urlparse(serviceCatalog['identity'][0]['adminURL'])
+        conn = httplib.HTTPConnection(o.hostname, o.port)
+        conn.request("GET", "/v2.0/users/%s/roleRefs" % self.id, headers=hdrs)
+        response_read = conn.getresponse().read()
+        data = json.loads(response_read)
+        
+        if not data.has_key('roleRefs'):
+            raise Exception("%s" % response_read)
+        for role in data['roleRefs']['values']:
+            self._apiresource.roles.add(role['roleId'])
 
 
 class SwiftAuthentication(object):
@@ -285,13 +309,12 @@ def compute_api(request):
 
 
 def account_api(request):
-    LOG.error(dir(request))
     LOG.debug('account_api connection created using token "%s"'
                       ' and url "%s"' %
-                  (request.user.token,
+                  (settings.OPENSTACK_ADMIN_TOKEN,
                    url_for(request, 'identity', True)))
     return openstackx.extras.Account(
-        auth_token=request.user.token,
+        auth_token=settings.OPENSTACK_ADMIN_TOKEN,
         management_url=url_for(request, 'identity', True))
 
 
@@ -484,7 +507,7 @@ def token_info(request, token):
     # part of token_create.  May require modification of openstackx so that the
     # token_create call returns this information as well
     hdrs = {"Content-type": "application/json",
-            "X-Auth-Token": token.id,
+            "X-Auth-Token": settings.OPENSTACK_ADMIN_TOKEN,
             "Accept": "text/json"}
 
     o = urlparse(token.serviceCatalog['identity'][0]['adminURL'])
@@ -494,6 +517,8 @@ def token_info(request, token):
     data = json.loads(response_read)
 
     roles = set()
+    if not data.has_key('auth'):
+        raise Exception("%s" % response_read)
     for role in data['auth']['user']['roleRefs']:
         roles.add(role['roleId'])
 

@@ -52,15 +52,18 @@ urlpatterns = patterns(__name__,
 LOG = logging.getLogger(__name__)
 
 class UserForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        tenant_list = kwargs.pop('tenant_list', None)
-        super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['tenant_id'].choices = [[tenant.id,tenant.id] for tenant in tenant_list]
-
     id = forms.CharField(label="ID (username)")
-    email = forms.CharField(label="Email")
+    email = forms.CharField(label="Email", required=False)
     password = forms.CharField(label="Password", widget=forms.PasswordInput(render_value=False), required=False)
-    tenant_id = forms.ChoiceField(label="Primary Tenant")
+
+
+class UserEditAdminForm(UserForm):
+    is_softadmin = forms.BooleanField(label="Software Admin", required=False, initial=False) 
+    is_hardadmin = forms.BooleanField(label="Hardware Admin", required=False, initial=False)
+
+
+def get_user_form(request):
+    return UserEditAdminForm if "hardadmin" in request.user.roles else UserForm
 
 
 class UserDeleteForm(forms.SelfHandlingForm):
@@ -112,7 +115,9 @@ def index(request):
     except api_exceptions.ApiException, e:
         messages.error(request, 'Unable to list users: %s' %
                                  e.message)
-
+    for user in users:
+        user.read_roles(request.session['token'], request.session['serviceCatalog'])
+       
     user_delete_form = UserDeleteForm()
     user_enable_disable_form = UserEnableDisableForm()
     
@@ -126,8 +131,9 @@ def index(request):
 @login_required
 def update(request, user_id):
     if request.method == "POST":
-        tenants = api.tenant_list(request)
-        form = UserForm(request.POST, tenant_list=tenants)
+        victim_user_roles = request.session['victim_user_roles']
+        del request.session['victim_user_roles']
+        form = get_user_form(request)(request.POST) 
         if form.is_valid():
             user = form.clean()
             updated = []
@@ -137,9 +143,19 @@ def update(request, user_id):
             if user['password']:
                 updated.append('password')
                 api.user_update_password(request, user['id'], user['password'])
-            if user['tenant_id']:
-                updated.append('tenant')
-                api.user_update_tenant(request, user['id'], user['tenant_id'])
+
+            for admin_role in ['softadmin', 'hardadmin']:
+                field_name = 'is_' + admin_role
+                if user.has_key(field_name) and user[field_name] != (admin_role in victim_user_roles):                    
+                    if user[field_name]:
+                        api.account_api(request).role_refs. \
+                            add_for_tenant_user(None, user['id'], admin_role)
+                        updated.append(field_name)
+                    elif user['id'] != request.user.username:
+                        api.account_api(request).role_refs. \
+                            delete_for_tenant_user(None, user['id'], admin_role)
+                        updated.append(field_name)
+
             messages.success(request,
                              'Updated %s for %s.'
                              % (', '.join(updated), user_id))
@@ -157,21 +173,17 @@ def update(request, user_id):
 
     else:
         u = api.user_get(request, user_id)
-        tenants = api.tenant_list(request)
+        u.read_roles(request.session['token'], request.session['serviceCatalog'])
+        request.session['victim_user_roles'] = u.roles
         try:
             # FIXME
             email = u.email
         except:
-            email = ''
-
-        try:
-            tenant_id = u.tenantId
-        except:
-            tenant_id = None
-        form = UserForm(initial={'id': user_id,
-                                 'tenant_id': tenant_id,
-                                 'email': email},
-                                 tenant_list=tenants)
+            email = '<none>'
+        form = get_user_form(request)(initial={'id': user_id,
+                                 'email': email,
+                                 'is_hardadmin': "hardadmin" in u.roles,
+                                 'is_softadmin': "softadmin" in u.roles})
         return render_to_response(
         topbar + '/user_update.html',{
             'form': form,
@@ -181,15 +193,8 @@ def update(request, user_id):
 
 @login_required
 def create(request):
-    try:
-        tenants = api.tenant_list(request)
-    except api_exceptions.ApiException, e:
-        messages.error(request, 'Unable to retrieve tenant list: %s' %
-                                 e.message)
-        return redirect(topbar + '/users')
-
     if request.method == "POST":
-        form = UserForm(request.POST, tenant_list=tenants)
+        form = get_user_form(request)(request.POST)
         if form.is_valid():
             user = form.clean()
             # TODO Make this a real request
@@ -199,12 +204,8 @@ def create(request):
                                 user['id'],
                                 user['email'],
                                 user['password'],
-                                user['tenant_id'],
+                                None,
                                 True)
-                api.account_api(request).role_refs.add_for_tenant_user(
-                        user['tenant_id'], user['id'],
-                        settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
-
                 messages.success(request,
                                  '%s was successfully created.'
                                  % user['id'])
@@ -212,8 +213,8 @@ def create(request):
 
             except api_exceptions.ApiException, e:
                 LOG.error('ApiException while creating user\n'
-                          'id: "%s", email: "%s", tenant_id: "%s"' %
-                          (user['id'], user['email'], user['tenant_id']),
+                          'id: "%s", email: "%s"' %
+                          (user['id'], user['email']),
                           exc_info=True)
                 messages.error(request,
                                  'Error creating user: %s'
@@ -226,7 +227,7 @@ def create(request):
             }, context_instance = template.RequestContext(request))
 
     else:
-        form = UserForm(tenant_list=tenants)
+        form = get_user_form(request)()
         return render_to_response(
         topbar + '/user_create.html',{
             'form': form,
