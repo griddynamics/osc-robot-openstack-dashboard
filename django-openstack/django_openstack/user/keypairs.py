@@ -73,8 +73,6 @@ class CreateKeypair(forms.SelfHandlingForm):
 
     @classmethod
     def maybe_handle(cls, request, *args, **kwargs):
-        LOG.error(request)
-        LOG.error("name %s" % cls.__name__)
         if cls.__name__ != request.POST.get('method'):
             return cls(*args, **kwargs), None
         try:
