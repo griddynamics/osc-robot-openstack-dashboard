@@ -1,4 +1,4 @@
-{% extends '_base.html' %}
+{% extends 'softadmin/base.html' %}
 
 {% block sidebar %}
   {% with current_sidebar="tenants" %}
@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block page_header %}
-  {% include "_page_header.html" with title="Create Tenant" %}
+  {% include "_page_header.html" with title="Create Project" %}
 {% endblock page_header %}
 
 {% block _main %}
