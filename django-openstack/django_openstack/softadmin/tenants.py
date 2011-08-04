@@ -59,7 +59,7 @@ class AddUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.add_for_tenant_user(data['tenant'],
-                    data['user'], settings.OPENSTACK_KEYSTONE_DEFAULT_ROLE)
+                    data['user'], settings.OPENSTACK_KEYSTONE_PROJECT_AMDMIN_ROLE)
             messages.success(request,
                              '%s was successfully added to %s.'
                              % (data['user'], data['tenant']))
