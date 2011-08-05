@@ -59,8 +59,8 @@ def handle_login(request, username, password, tenant):
         request.session['tenant'] = tenant
         request.session['roles'] = info['roles']
         request.session['serviceCatalog'] = token.serviceCatalog
-        LOG.info('Login form for user "%s". Service Catalog data:\n%s' %
-                 (username, token.serviceCatalog))
+        LOG.info('Login form for user "%s" on tenant "%s". Service Catalog data:\n%s' %
+                 (username, tenant, token.serviceCatalog))
 
         return shortcuts.redirect('user')
 
