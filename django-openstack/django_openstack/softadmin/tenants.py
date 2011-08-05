@@ -234,15 +234,8 @@ def users(request, tenant_id):
 
     users = api.account_api(request).users.get_for_tenant(tenant_id).values
     all_users = api.account_api(request).users.list()
-    new_user_ids = []
-    user_ids = [u['id'] for u in users]
-    all_user_ids = [u.id for u in all_users]
-    for uid in all_user_ids:
-        if not uid in user_ids:
-            new_user_ids.append(uid)
-    for i in user_ids:
-        if i in new_user_ids:
-            new_user_ids.remove(i)
+    new_user_ids = set([u.id for u in all_users]) - set([u['id'] for u in users])
+    users = [user for user in users if auth.Roles.PROJECT_ADMIN in user["tenantRoles"]]
     return render_to_response(
     topbar + '/tenant_users.html',{
         'add_user_form': add_user_form,
