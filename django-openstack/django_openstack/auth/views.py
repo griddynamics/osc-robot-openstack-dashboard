@@ -40,11 +40,16 @@ urlpatterns = patterns(__name__,
 )
 LOG = logging.getLogger(__name__)
 
+def display_error(request, msg):
+    LOG.error(msg, exc_info=True)
+    messages.error(request, msg)
+
+
 def handle_login(request, username, password, tenant):
     try:
         token = api.token_create(request, tenant, username, password)
         info = api.token_info(request, token)
-        if not tenant:
+        if not tenant and auth.Roles.needs_tenant(info['roles']):
             for tenant_obj in api.token_list_tenants(request, token.id):
                 if not tenant_obj.enabled:
                     continue
@@ -52,6 +57,9 @@ def handle_login(request, username, password, tenant):
                 token = api.token_create(request, tenant, username, password)
                 info = api.token_info(request, token)
                 break
+            if not tenant:
+                display_error(request, 'No tenants/projects for user %s' % username)
+                return shortcuts.redirect('splash')
 
         request.session['token'] = token.id
         request.session['username'] = username
@@ -62,15 +70,14 @@ def handle_login(request, username, password, tenant):
         LOG.info('Login form for user "%s" on tenant "%s". Service Catalog data:\n%s' %
                  (username, tenant, token.serviceCatalog))
 
-        return shortcuts.redirect('user')
+        return shortcuts.redirect(auth.Roles.get_max_role(info['roles']))
 
     except api_exceptions.Unauthorized as e:
-        msg = 'Error authenticating: %s' % e.message
-        LOG.error(msg, exc_info=True)
-        messages.error(request, msg)
+        display_error(request, 'Error authenticating: %s' % e.message)
+        return shortcuts.redirect('splash')
     except api_exceptions.ApiException as e:
-        messages.error(request, 'Error authenticating with keystone: %s' %
-                       e.message)
+        display_error(request, 'Error authenticating with keystone: %s' % e.message)
+        return shortcuts.redirect('splash')
 
 
 class Login(forms.SelfHandlingForm):
@@ -79,7 +86,7 @@ class Login(forms.SelfHandlingForm):
                                widget=forms.PasswordInput(render_value=False))
 
     def handle(self, request, data):
-        return handle_login(request, data['username'], data['password'], data.get('tenant', ''))
+        return handle_login(request, data['username'], data['password'], None)
 
 
 def login(request):

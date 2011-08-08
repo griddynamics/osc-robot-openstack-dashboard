@@ -11,18 +11,20 @@
   </ul>
   
   <div id="user_bar">
-    <a id="current_tenant" href="{% url user %}">
-      <h4>{{request.user.tenant}}</h4>
-      <span>as {{request.user.username}}</span>
+    <a id="current_tenant" href="{% url splash %}">
+      <span>Welcome, {{request.user.username}}</span>
+      {% if "user" in request.user.roles or "projadmin" in request.user.roles %} <h4>{{request.user.tenant}} </h4>{% endif %}
     </a>
     <a id="drop_btn" href="#">&nbsp;</a>
     <ul id="user_tenant_list">
+      {% if "user" in request.user.roles or "projadmin" in request.user.roles %}
       <li class="title"><h4>Available Projects</h4></li>
       {% for tenant in tenants %}
         {% if tenant.enabled %}
           <li><a href="{% url auth/switch tenant.id %}">{{tenant.id}}</a></li>
         {% endif %}
       {% endfor %}
+      {% endif %}
       <li id="sign_out"><a href="{% url auth/logout %}">Sign Out</a></li>
     </ul>
   </div>

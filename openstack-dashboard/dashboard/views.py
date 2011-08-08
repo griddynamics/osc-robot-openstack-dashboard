@@ -34,11 +34,7 @@ from django_openstack.auth import views as auth_views
 @vary.vary_on_cookie
 def splash(request):
     if request.user:
-        if not request.user.roles:
-            return shortcuts.redirect(auth.Roles.DEFAULT)
-        for role in auth.Roles.ALL_ROLES:
-            if role in request.user.roles:
-                return shortcuts.redirect(role)
+        return shortcuts.redirect(auth.Roles.get_max_role(request.user.roles))
 
     form, handled = auth_views.Login.maybe_handle(request)
     if handled:
