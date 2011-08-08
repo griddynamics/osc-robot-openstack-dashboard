@@ -638,15 +638,28 @@ def swift_get_object_data(request, container_name, object_name):
     return container.get_object(object_name).stream()
 
 class GlobalSummary(object):
-    summary = {}
-    service_list = []
-    usage_list = []
+    node_resources = ['vcpus', 'disk_size', 'ram_size']
+    unit_mem_size = {'disk_size': ['GiB', 'TiB'], 'ram_size': ['MiB', 'GiB']}
+    node_resource_info = ['', 'active_', 'avail_']
 
     def __init__(self, request):
+        self.service_list = []
+        self.usage_list = []
+        self.summary = {}
         for rsrc in GlobalSummary.node_resources:
             for info in GlobalSummary.node_resource_info:
                 self.summary['total_' + info + rsrc] = 0
         self.request = request
+
+    @staticmethod
+    def try_min(service, max_name, name):
+        if max_name in service.stats:
+            if name in service.stats:
+                return min(service.stats[max_name], service.stats[name])
+            return service.stats[max_name]
+        if name in service.stats:
+            return service.stats[name]
+        return 0
 
     def service(self):
         try:
@@ -661,9 +674,9 @@ class GlobalSummary(object):
 
         for service in self.service_list:
             if service.type == 'nova-compute':
-                self.summary['total_vcpus'] += min(service.stats['max_vcpus'], service.stats['vcpus'])
-                self.summary['total_disk_size'] += min(service.stats['max_gigabytes'], service.stats['local_gb'])
-                self.summary['total_ram_size'] += min(service.stats['max_ram'], service.stats['memory_mb']) if 'max_ram' in service.stats else service.stats['memory_mb']
+                self.summary['total_vcpus'] += GlobalSummary.try_min(service, 'max_vcpus', 'vcpus')
+                self.summary['total_disk_size'] += GlobalSummary.try_min(service, 'max_gigabytes', 'local_gb')
+                self.summary['total_ram_size'] += GlobalSummary.try_min(service, 'max_ram', 'memory_mb')
 
     def usage(self, datetime_start, datetime_end):
         try:
@@ -704,8 +717,3 @@ class GlobalSummary(object):
     def avail(self):
         for rsrc in GlobalSummary.node_resources:
             self.summary['total_avail_' + rsrc] = self.summary['total_' + rsrc] - self.summary['total_active_' + rsrc]
-
-
-GlobalSummary.node_resources = ['vcpus', 'disk_size', 'ram_size']
-GlobalSummary.unit_mem_size = {'disk_size': ['GiB', 'TiB'], 'ram_size': ['MiB', 'GiB']}
-GlobalSummary.node_resource_info = ['', 'active_', 'avail_']
