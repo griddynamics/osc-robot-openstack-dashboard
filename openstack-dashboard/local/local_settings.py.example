@@ -9,7 +9,7 @@ LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(LOCAL_PATH, 'dashboard_openstack.sqlite3'),
+        'NAME': '/var/lib/dashboard/dashboard_openstack.sqlite3',
     },
 }
 
@@ -80,3 +80,34 @@ EXTERNAL_MONITORING = [
 
 # How much ram on each compute host?
 COMPUTE_HOST_RAM_GB = 16
+LOGIN_URL = '/dashboard/auth/login'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s: %(message)s'
+            },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+            },
+        },
+    'handlers': {
+        'log_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': '/var/log/dashboard/dashboard.log',
+            'formatter': 'verbose'
+            },
+        },
+    'loggers': {
+        'django': {
+            'handlers': ['log_file'],
+            'propagate': False,
+            },
+        'django_openstack': {
+            'handlers': ['log_file'],
+            'propagate': False,
+            },
+        }
+    }
