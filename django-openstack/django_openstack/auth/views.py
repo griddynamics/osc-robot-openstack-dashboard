@@ -34,9 +34,9 @@ from django_openstack.urls import get_topbar_name
 
 topbar = get_topbar_name(__file__)
 urlpatterns = patterns(__name__,
-    url(r'login/$', 'login', name='auth_login'),
-    url(r'logout/$', 'logout', name='auth_logout'),
-    url(r'switch/(?P<tenant_id>[^/]+)/$', 'switch_tenants', name='auth_switch'),
+    url(r'login/$', 'login', name=topbar + '/login'),
+    url(r'logout/$', 'logout', name=topbar + '/logout'),
+    url(r'switch/(?P<tenant_id>[^/]+)/$', 'switch_tenants', name=topbar + '/switch'),
 )
 LOG = logging.getLogger(__name__)
 

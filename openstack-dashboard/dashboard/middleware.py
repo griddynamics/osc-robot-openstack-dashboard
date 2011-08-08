@@ -42,7 +42,7 @@ class DashboardLogUnhandledExceptionsMiddleware(object):
                                        ' Please log back in.')
                 LOG.info('User "%s" auth token expired, redirecting to logout'
                          % request.user.username)
-                return shortcuts.redirect('auth_logout')
+                return shortcuts.redirect('auth/logout')
 
             except ValueError:
                 pass
