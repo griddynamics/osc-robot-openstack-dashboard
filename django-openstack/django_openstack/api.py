@@ -328,8 +328,8 @@ def glance_api(request):
 def admin_api(request):
     LOG.debug('admin_api connection created using token "%s"'
                     ' and url "%s"' %
-                    (request.user.token, url_for(request, 'nova', True)))
-    return openstackx.admin.Admin(auth_token=request.user.token,
+                    (settings.OPENSTACK_ADMIN_TOKEN, url_for(request, 'nova', True)))
+    return openstackx.admin.Admin(auth_token=settings.OPENSTACK_ADMIN_TOKEN,
                                  management_url=url_for(request, 'nova', True))
 
 
