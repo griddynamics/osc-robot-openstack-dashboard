@@ -237,7 +237,7 @@ def users(request, tenant_id):
 
     users = api.account_api(request).users.get_for_tenant(tenant_id).values
     all_users = api.account_api(request).users.list()
-    new_user_ids = set([u.id for u in all_users]) - set([u['id'] for u in users])
+    new_user_ids = set([u.id for u in all_users if auth.Roles.needs_tenant(api.User(u).global_roles)]) - set([u['id'] for u in users])
     users = [user for user in users if auth.Roles.PROJECT_ADMIN in user["tenantRoles"]]
     return render_to_response(
     topbar + '/tenant_users.html',{
