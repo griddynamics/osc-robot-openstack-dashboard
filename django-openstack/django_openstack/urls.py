@@ -36,9 +36,9 @@ for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py")
     if sidebar == "__init__":
         continue
     sidebar_module_name = "django_openstack" + "." + topbar + "." + sidebar
-    sidebar_module = __import__(sidebar_module_name, fromlist="django_openstack." + topbar)
     try:
+        sidebar_module = __import__(sidebar_module_name, fromlist="django_openstack." + topbar)
         sidebar_module.urlpatterns
-    except:
+    except (ImportError, AttributeError):
         continue
     urlpatterns += patterns('', url(r'^' + topbar + '/', include(sidebar_module_name)))
