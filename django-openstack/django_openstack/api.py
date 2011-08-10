@@ -232,7 +232,7 @@ class User(APIResourceWrapper):
             setattr(self, attr, self._apiresource.manager.api.role_refs.list_for_user(self.id))
             return self.__dict__[attr]
         if attr == "global_roles":
-            setattr(self, attr, [role.roleId for role in self.role_refs if not hasattr(role, 'tenantId')])
+            setattr(self, attr, [role.roleId for role in self.role_refs if not role.tenantId])
             return self.__dict__[attr]
         return super(User, self).__getattr__(attr)
 
@@ -492,7 +492,7 @@ def tenant_append_endpoints(request, tenant_id, service_names):
         return
     mgr_endpoints = api.endpoints
     for endpoint in mgr_endpoints.list_for_tenant(tenant_id):
-        template_id = endpoint.endpoint_template_id
+        template_id = endpoint.endpointTemplateId
         if template_id in template_ids:
             template_ids.remove(template_id)
     for template_id in template_ids:
