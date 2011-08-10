@@ -150,8 +150,10 @@ class DeleteTenantForm(forms.SelfHandlingForm):
         api.tenant_delete(request, tenant_id)
         # TODO(nsokolov): delete project too
         if scrub:
-            api.project_scrub(request, tenant_id)
-            pass
+            try:
+                api.project_scrub(request, tenant_id)
+            except AttributeError:
+                LOG.debug(_('your openstackx library does not support project_scrub'))
         messages.info(request, '%s was successfully deleted.'
                                 % tenant_id)
 
