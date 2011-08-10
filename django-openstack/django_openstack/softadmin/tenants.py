@@ -194,9 +194,10 @@ class UpdateQuotas(forms.SelfHandlingForm):
 
 @login_required
 def index(request):
-    _, handled = DeleteTenantForm.maybe_handle(request)
-    if handled:
-        return handled
+    for f in (DeleteTenantForm,):
+        _, handled = f.maybe_handle(request)
+        if handled:
+            return handled
 
     tenants = []
     try:
