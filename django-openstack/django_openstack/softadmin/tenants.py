@@ -139,6 +139,25 @@ class UpdateTenant(forms.SelfHandlingForm):
         return redirect(topbar + '/tenants')
 
 
+class DeleteTenantForm(forms.SelfHandlingForm):
+    tenant = forms.CharField(required=True)
+    scrub = forms.BooleanField(required=False, initial=False)
+
+    def handle(self, request, data):
+        tenant_id = data['tenant']
+        scrub = data['scrub']
+        LOG.info('Deleting project with id "%s"' % tenant_id)
+        api.tenant_delete(request, tenant_id)
+        # TODO(nsokolov): delete project too
+        if scrub:
+            api.project_scrub(request, tenant_id)
+            pass
+        messages.info(request, '%s was successfully deleted.'
+                                % tenant_id)
+
+        return redirect(request.build_absolute_uri())
+
+
 class UpdateQuotas(forms.SelfHandlingForm):
     tenant_id = forms.CharField(label="ID (name)", widget=forms.TextInput(attrs={'readonly':'readonly'}))
     metadata_items = forms.CharField(label="Metadata Items")
@@ -175,15 +194,23 @@ class UpdateQuotas(forms.SelfHandlingForm):
 
 @login_required
 def index(request):
+    _, handled = DeleteTenantForm.maybe_handle(request)
+    if handled:
+        return handled
+
     tenants = []
     try:
         tenants = api.tenant_list(request)
     except api_exceptions.ApiException, e:
         LOG.error('ApiException while getting tenant list', exc_info=True)
         messages.error(request, 'Unable to get tenant info: %s' % e.message)
+
+    tenant_delete_form = DeleteTenantForm()
+
     tenants.sort(key=lambda x: x.id, reverse=True)
     return render_to_response(topbar + '/tenant_view.html',{
         'tenants': tenants,
+        'tenant_delete_form': tenant_delete_form,
     }, context_instance = template.RequestContext(request))
 
 
