@@ -99,6 +99,9 @@ class CreateTenant(forms.SelfHandlingForm):
                               data['id'],
                               data['description'],
                               data['enabled'])
+            api.tenant_append_endpoints(request, 
+                                        data['id'], 
+                                        settings.OPENSTACK_ENDPOINT_TEMPLATES)
             messages.success(request,
                              '%s was successfully created.'
                              % data['id'])

@@ -493,6 +493,24 @@ def tenant_update(request, tenant_id, description, enabled):
                                                       enabled))
 
 
+def tenant_append_endpoints(request, tenant_id, service_names):
+    api = account_api(request)
+    template_ids = []
+    for template in api.endpoint_templates.list():
+        print template.serviceName
+        if template.serviceName in service_names:
+            template_ids.append(str(template.id))
+    if not template_ids:
+        return
+    mgr_endpoints = api.endpoints
+    for endpoint in mgr_endpoints.list_for_tenant(tenant_id):
+        template_id = endpoint.endpoint_template_id
+        if template_id in template_ids:
+            template_ids.remove(template_id)
+    for template_id in template_ids:
+        mgr_endpoints.add_for_tenant(tenant_id, template_id)
+
+
 def token_create(request, tenant, username, password):
     return Token(auth_api().tokens.create(tenant, username, password))
 
