@@ -91,11 +91,7 @@ class Login(forms.SelfHandlingForm):
 
 def login(request):
     if request.user and request.user.is_authenticated():
-        if not request.user.roles:
-            return shortcuts.redirect(auth.Roles.DEFAULT)
-        for role in auth.Roles.ALL_ROLES:
-            if role in request.user.roles:
-                return shortcuts.redirect(role)
+        return shortcuts.redirect(auth.Roles.get_max_role(request.user.roles))
 
     form, handled = Login.maybe_handle(request)
     if handled:

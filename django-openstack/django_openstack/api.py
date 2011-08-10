@@ -226,27 +226,15 @@ class User(APIResourceWrapper):
 
     def __init__(self, apiresource):
         APIResourceWrapper.__init__(self, apiresource)
-        if self._apiresource:
-            self._apiresource.roles = set()
 
-    def read_roles(self, token, serviceCatalog):
-        if not self._apiresource:
-            return
-        self._apiresource.roles = set()
-        hdrs = {"Content-type": "application/json",
-            "X-Auth-Token": settings.OPENSTACK_ADMIN_TOKEN,
-            "Accept": "text/json"}
-
-        o = urlparse(serviceCatalog['identity'][0]['adminURL'])
-        conn = httplib.HTTPConnection(o.hostname, o.port)
-        conn.request("GET", "/v2.0/users/%s/roleRefs" % self.id, headers=hdrs)
-        response_read = conn.getresponse().read()
-        data = json.loads(response_read)
-        
-        if not data.has_key('roleRefs'):
-            raise Exception("%s" % response_read)
-        for role in data['roleRefs']['values']:
-            self._apiresource.roles.add(role['roleId'])
+    def __getattr__(self, attr):
+        if attr == "role_refs":
+            setattr(self, attr, self._apiresource.manager.api.role_refs.list_for_user(self.id))
+            return self.__dict__[attr]
+        if attr == "global_roles":
+            setattr(self, attr, [role.roleId for role in self.role_refs if not hasattr(role, 'tenantId')])
+            return self.__dict__[attr]
+        return super(User, self).__getattr__(attr)
 
 
 class SwiftAuthentication(object):

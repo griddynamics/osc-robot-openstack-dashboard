@@ -116,9 +116,7 @@ def index(request):
     except api_exceptions.ApiException, e:
         messages.error(request, 'Unable to list users: %s' %
                                  e.message)
-    for user in users:
-        user.read_roles(request.session['token'], request.session['serviceCatalog'])
-       
+   
     user_delete_form = UserDeleteForm()
     user_enable_disable_form = UserEnableDisableForm()
     
@@ -132,8 +130,8 @@ def index(request):
 @login_required
 def update(request, user_id):
     if request.method == "POST":
-        victim_user_roles = request.session['victim_user_roles'] if request.session.has_key('victim_user_roles') else set() 
-        del request.session['victim_user_roles']
+        victim_user_global_roles = request.session['victim_user_global_roles'] if request.session.has_key('victim_user_global_roles') else set() 
+        del request.session['victim_user_global_roles']
         form = get_user_form(request)(request.POST) 
         if form.is_valid():
             user = form.clean()
@@ -147,7 +145,7 @@ def update(request, user_id):
 
             for admin_role in [auth.Roles.SOFTWARE_ADMIN, auth.Roles.HARDWARE_ADMIN]:
                 field_name = 'is_' + admin_role
-                if user.has_key(field_name) and user[field_name] != (admin_role in victim_user_roles):                    
+                if user.has_key(field_name) and user[field_name] != (admin_role in victim_user_global_roles):                    
                     if user[field_name]:
                         api.account_api(request).role_refs. \
                             add_for_tenant_user(None, user['id'], admin_role)
@@ -174,8 +172,7 @@ def update(request, user_id):
 
     else:
         u = api.user_get(request, user_id)
-        u.read_roles(request.session['token'], request.session['serviceCatalog'])
-        request.session['victim_user_roles'] = u.roles
+        request.session['victim_user_global_roles'] = u.global_roles
         try:
             # FIXME
             email = u.email
@@ -183,8 +180,8 @@ def update(request, user_id):
             email = '<none>'
         form = get_user_form(request)(initial={'id': user_id,
                                  'email': email,
-                                 'is_hardadmin': "hardadmin" in u.roles,
-                                 'is_softadmin': "softadmin" in u.roles})
+                                 'is_hardadmin': "hardadmin" in u.global_roles,
+                                 'is_softadmin': "softadmin" in u.global_roles})
         return render_to_response(
         topbar + '/user_update.html',{
             'form': form,

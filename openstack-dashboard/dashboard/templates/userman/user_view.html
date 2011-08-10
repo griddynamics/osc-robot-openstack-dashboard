@@ -27,8 +27,8 @@
           <td>{{user.email}}</td>
           <td>
             <ul>
-              {% if "softadmin" in user.roles %} <li>Software Admin</li>{% endif %}
-              {% if "hardadmin" in user.roles %} <li>Hardware Admin</li>{% endif %}
+              {% if "softadmin" in user.global_roles %} <li>Software Admin</li>{% endif %}
+              {% if "hardadmin" in user.global_roles %} <li>Hardware Admin</li>{% endif %}
             </ul>                
           </td>
           <td id="actions">
