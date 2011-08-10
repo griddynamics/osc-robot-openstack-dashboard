@@ -29,6 +29,7 @@ from django.conf import settings
 from django_openstack import api
 from django_openstack import auth
 from django_openstack import forms
+import openstackx
 from openstackx.api import exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
 
@@ -53,9 +54,12 @@ def handle_login(request, username, password, tenant):
             for tenant_obj in api.token_list_tenants(request, token.id):
                 if not tenant_obj.enabled:
                     continue
-                tenant = tenant_obj.id
-                token = api.token_create(request, tenant, username, password)
-                info = api.token_info(request, token)
+                try:
+                    tenant = tenant_obj.id
+                    token = api.token_create(request, tenant, username, password)
+                    info = api.token_info(request, token)
+                except openstackx.api.exceptions.Unauthorized:
+                    continue
                 break
             if not tenant:
                 display_error(request, 'No tenants/projects for user %s' % username)

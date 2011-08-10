@@ -480,6 +480,8 @@ def tenant_update(request, tenant_id, description, enabled):
                                                       description,
                                                       enabled))
 
+def tenant_delete(request, tenant_id):
+    account_api(request).tenants.delete(tenant_id)
 
 def tenant_append_endpoints(request, tenant_id, service_names):
     api = account_api(request)
@@ -553,6 +555,11 @@ def user_delete(request, user_id):
 def user_get(request, user_id):
     return User(account_api(request).users.get(user_id))
 
+def project_delete(request, project_id):
+    admin_api(request).projects.delete(project_id)
+
+def project_scrub(request, project_id):
+    admin_api(request).projects.scrub(project_id)
 
 @check_openstackx
 def user_list(request):

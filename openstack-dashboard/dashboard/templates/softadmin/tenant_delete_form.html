@@ -4,6 +4,7 @@
     {{hidden}}
   {% endfor %}
   <input name="tenant" type="hidden" value="{{tenant.id}}" />
-  <input id="enable_{{tenant.id}}" class="enable" title="Project: {{tenant.id}}" type="submit" value="Delete" />
+  <input name="scrub" type="hidden" value="false" />
+  <input id="enable_{{tenant.id}}" class="delete" title="Project: {{tenant.id}}" type="submit" value="Delete" />
 </form>
 
