@@ -268,10 +268,7 @@ def users(request, tenant_id):
     users = api.account_api(request).users.get_for_tenant(tenant_id).values
     all_users = api.account_api(request).users.list()
     new_user_ids = set([u.id for u in all_users if auth.Roles.needs_tenant(api.User(u).global_roles)]) - set([u['id'] for u in users])
-    users = [user for user in users if auth.Roles.PROJECT_ADMIN in 
-                                        (role_ref.roleId for role_ref in
-                                            api.account_api(request).role_refs.list_for_user(user['id'])
-                                                if role_ref.tenantId == tenant_id)]
+    users = [user for user in users if auth.Roles.DEFAULT in user["tenantRoles"]]
     return render_to_response(
     topbar + '/tenant_users.html',{
         'add_user_form': add_user_form,
