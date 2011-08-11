@@ -59,8 +59,12 @@ class UserForm(forms.SelfHandlingForm):
 
     def __init__(self, *args, **kwargs):
         if 'user_id' in kwargs:
-            self.user_id = kwargs.pop('user_id')
+            self.user_id = kwargs.pop('user_id', '')
         super(UserForm, self).__init__(*args, **kwargs)
+        if self.user_id:
+            if 'id' in self.fields: # no user user_id means that we create new user
+                self.fields['id'].widget.attrs['readonly'] = True
+                self.fields['id'].widget.attrs['disabled'] = True
 
     def handle(self, request, data):
         if request.session.has_key('victim_user_global_roles'):
