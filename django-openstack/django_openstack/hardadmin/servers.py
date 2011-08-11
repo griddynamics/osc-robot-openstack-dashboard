@@ -39,7 +39,6 @@ from django.contrib import messages
 
 from django_openstack import api
 from django_openstack import forms
-from django_openstack.user import instances as dash_instances
 from openstackx.api import exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
 
