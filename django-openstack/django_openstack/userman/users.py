@@ -52,15 +52,96 @@ urlpatterns = patterns(__name__,
 )
 LOG = logging.getLogger(__name__)
 
-class UserForm(forms.Form):
+class UserForm(forms.SelfHandlingForm):
     id = forms.CharField(label="ID (username)")
     email = forms.CharField(label="Email", required=False)
     password = forms.CharField(label="Password", widget=forms.PasswordInput(render_value=False), required=False)
+
+    def __init__(self, *args, **kwargs):
+        if 'user_id' in kwargs:
+            self.user_id = kwargs.pop('user_id')
+        super(UserForm, self).__init__(*args, **kwargs)
+
+    def handle(self, request, data):
+        if request.session.has_key('victim_user_global_roles'):
+            self.victim_user_global_roles = request.session['victim_user_global_roles']
+            del request.session['victim_user_global_roles']
+        else:
+            self.victim_user_global_roles = set()
+        if self.is_valid():
+            self._handle(request, data)
+            if self.updated:
+                messages.success(request,
+                                 'Updated %s for %s.'
+                                 % (', '.join(self.updated), self.user_id))
+            return redirect(topbar + '/users')
+        else:
+            # TODO add better error management
+            messages.error(request, 'Unable to update user,\
+                                    please try again.')
+
+            return render_to_response(
+            topbar + '/user_update.html',{
+                'self': self,
+                'user_id': self.user_id,
+            }, context_instance = template.RequestContext(request))
+
+    def _handle(self, request, data):
+        self.user = self.clean()
+        self.updated = []
+        self.user_id = self.user['id']
+        try:
+            api.user_get(request, self.user_id)
+        except api_exceptions.ApiException:  # user does not exist, creating...
+            LOG.info('Creating user with id "%s"' % self.user['id'])
+            try:
+                api.user_create(request,
+                                self.user['id'],
+                                self.user['email'],
+                                self.user['password'],
+                                None,
+                                True)
+                messages.success(request,
+                                 '%s was successfully created.'
+                                 % self.user['id'])
+                return redirect(topbar + '/users')
+            except api_exceptions.ApiException, e:
+                LOG.error('ApiException while creating user\n'
+                          'id: "%s", email: "%s"' %
+                          (self.user['id'], self.user['email']),
+                          exc_info=True)
+                messages.error(request,
+                                 'Error creating user: %s'
+                                 % e.message)
+            return redirect(topbar + '/users')
+        else:  # edit user
+            if self.user['email']:
+                self.updated.append('email')
+                api.user_update_email(request, self.user['id'], self.user['email'])
+            if self.user['password']:
+                self.updated.append('password')
+                api.user_update_password(request, self.user['id'], self.user['password'])
+            return redirect(topbar + '/users')
+
 
 
 class UserEditAdminForm(UserForm):
     is_softadmin = forms.BooleanField(label="Software Admin", required=False, initial=False) 
     is_hardadmin = forms.BooleanField(label="Hardware Admin", required=False, initial=False)
+
+    def _handle(self, request, data):
+        super(UserEditAdminForm, self)._handle(request, data)
+        for admin_role in [auth.Roles.SOFTWARE_ADMIN, auth.Roles.HARDWARE_ADMIN]: # edit user
+            field_name = 'is_' + admin_role
+            if self.user.has_key(field_name) and self.user[field_name] != (admin_role in self.victim_user_global_roles):
+                if self.user[field_name]:
+                    api.account_api(request).role_refs. \
+                        add_for_tenant_user(None, self.user['id'], admin_role)
+                    self.updated.append(field_name)
+                elif self.user['id'] != request.user.username:
+                    api.account_api(request).role_refs. \
+                        delete_for_tenant_user(None, self.user['id'], admin_role)
+                    self.updated.append(field_name)
 
 
 def get_user_form(request):
@@ -129,111 +210,35 @@ def index(request):
 
 @login_required
 def update(request, user_id):
-    if request.method == "POST":
-        victim_user_global_roles = request.session['victim_user_global_roles'] if request.session.has_key('victim_user_global_roles') else set() 
-        del request.session['victim_user_global_roles']
-        form = get_user_form(request)(request.POST) 
-        if form.is_valid():
-            user = form.clean()
-            updated = []
-            if user['email']:
-                updated.append('email')
-                api.user_update_email(request, user['id'], user['email'])
-            if user['password']:
-                updated.append('password')
-                api.user_update_password(request, user['id'], user['password'])
-
-            for admin_role in [auth.Roles.SOFTWARE_ADMIN, auth.Roles.HARDWARE_ADMIN]:
-                field_name = 'is_' + admin_role
-                if user.has_key(field_name) and user[field_name] != (admin_role in victim_user_global_roles):                    
-                    if user[field_name]:
-                        api.account_api(request).role_refs. \
-                            add_for_tenant_user(None, user['id'], admin_role)
-                        updated.append(field_name)
-                    elif user['id'] != request.user.username:
-                        api.account_api(request).role_refs. \
-                            delete_for_tenant_user(None, user['id'], admin_role)
-                        updated.append(field_name)
-
-            messages.success(request,
-                             'Updated %s for %s.'
-                             % (', '.join(updated), user_id))
-            return redirect(topbar + '/users')
-        else:
-            # TODO add better error management
-            messages.error(request, 'Unable to update user,\
-                                    please try again.')
-
-            return render_to_response(
-            topbar + '/user_update.html',{
-                'form': form,
-                'user_id': user_id,
-            }, context_instance = template.RequestContext(request))
-
-    else:
-        u = api.user_get(request, user_id)
-        request.session['victim_user_global_roles'] = u.global_roles
-        try:
-            # FIXME
-            email = u.email
-        except:
-            email = '<none>'
-        form = get_user_form(request)(initial={'id': user_id,
-                                 'email': email,
-                                 'is_hardadmin': "hardadmin" in u.global_roles,
-                                 'is_softadmin': "softadmin" in u.global_roles})
-        return render_to_response(
-        topbar + '/user_update.html',{
-            'form': form,
-            'user_id': user_id,
-        }, context_instance = template.RequestContext(request))
-
+    for form in (get_user_form(request),):
+        _, handle = form.maybe_handle(request, user_id=user_id)
+        if handle:
+            return handle
+    u = api.user_get(request, user_id)
+    request.session['victim_user_global_roles'] = u.global_roles
+    try:
+        # FIXME
+        email = u.email
+    except AttributeError:
+        email = '<none>'
+    form = get_user_form(request)(user_id=user_id, initial={'id': user_id,
+                             'email': email,
+                             'is_hardadmin': "hardadmin" in u.global_roles,
+                             'is_softadmin': "softadmin" in u.global_roles})
+    return render_to_response(
+    topbar + '/user_update.html',{
+        'form': form,
+        'user_id': user_id,
+    }, context_instance = template.RequestContext(request))
 
 @login_required
 def create(request):
-    if request.method == "POST":
-        form = get_user_form(request)(request.POST)
-        if form.is_valid():
-            user = form.clean()
-            # TODO Make this a real request
-            try:
-                LOG.info('Creating user with id "%s"' % user['id'])
-                api.user_create(request,
-                                user['id'],
-                                user['email'],
-                                user['password'],
-                                None,
-                                True)
-                for admin_role in [auth.Roles.SOFTWARE_ADMIN, auth.Roles.HARDWARE_ADMIN]:
-                    field_name = 'is_' + admin_role
-                    if user.has_key(field_name):                    
-                        if user[field_name]:
-                            api.account_api(request).role_refs. \
-                                add_for_tenant_user(None, user['id'], admin_role)                    
-
-                messages.success(request,
-                                 '%s was successfully created.'
-                                 % user['id'])
-                return redirect(topbar + '/users')
-
-            except api_exceptions.ApiException, e:
-                LOG.error('ApiException while creating user\n'
-                          'id: "%s", email: "%s"' %
-                          (user['id'], user['email']),
-                          exc_info=True)
-                messages.error(request,
-                                 'Error creating user: %s'
-                                 % e.message)
-                return redirect(topbar + '/users')
-        else:
-            return render_to_response(
-            topbar + '/user_create.html',{
-                'form': form,
-            }, context_instance = template.RequestContext(request))
-
-    else:
-        form = get_user_form(request)()
-        return render_to_response(
-        topbar + '/user_create.html',{
-            'form': form,
-        }, context_instance = template.RequestContext(request))
+    for form in (get_user_form(request),):
+        _, handle = form.maybe_handle(request)
+        if handle:
+            return handle
+    form = get_user_form(request)()
+    return render_to_response(
+    topbar + '/user_create.html',{
+        'form': form,
+    }, context_instance = template.RequestContext(request))
