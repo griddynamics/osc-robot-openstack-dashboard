@@ -60,7 +60,7 @@ class AddUser(forms.SelfHandlingForm):
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create user association: %s' %
                            (e.message))
-        return redirect(topbar + '/users')
+        return redirect(request.build_absolute_uri())
 
 class RemoveUser(forms.SelfHandlingForm):
     user = forms.CharField()
@@ -76,7 +76,7 @@ class RemoveUser(forms.SelfHandlingForm):
         except api_exceptions.ApiException, e:
             messages.error(request, 'Unable to create tenant: %s' %
                            (e.message))
-        return redirect(topbar + '/users')
+        return redirect(request.build_absolute_uri())
 
 
 @login_required
