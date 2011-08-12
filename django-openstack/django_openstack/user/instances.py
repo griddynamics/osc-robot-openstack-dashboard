@@ -132,6 +132,7 @@ def index(request, tenant_id):
         'reboot_form': reboot_form,
     }, context_instance=template.RequestContext(request))
 
+
 @login_required
 def refresh(request, tenant_id):
     instances = []
@@ -145,11 +146,12 @@ def refresh(request, tenant_id):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return shortcuts.render_to_response(topbar + '/instance_view.html', {
+    return shortcuts.render_to_response(topbar + '/instance_table.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,
     }, context_instance=template.RequestContext(request))
+
 
 @login_required
 def usage(request, tenant_id=None):
