@@ -178,7 +178,7 @@ def index(request):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return render_to_response(topbar + '/instances.html', {
+    return render_to_response(topbar + '/instance_view.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,
@@ -202,7 +202,7 @@ def refresh(request):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return render_to_response(topbar + '/_systopbar_instance_list.html', {
+    return render_to_response(topbar + '/instance_view.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,

@@ -34,6 +34,7 @@ SITE_BRANDING = 'OpenStack'
 SITE_NAME = 'openstack'
 ENABLE_VNC = True
 
+SCRIPT_NAME = ''
 LOGIN_URL = '/auth/login'
 LOGIN_REDIRECT_URL = '/'
 
@@ -51,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django_openstack.middleware.keystone.AuthenticationMiddleware',
+    'django_openstack.urls.PluginsMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'dashboard.middleware.DashboardLogUnhandledExceptionsMiddleware',

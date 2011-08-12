@@ -40,6 +40,7 @@ import openstack.compute.servers
 import openstackx.api.exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
 
+
 topbar = get_topbar_name(__file__)
 INSTANCES = r'^(?P<tenant_id>[^/]+)/instances/(?P<instance_id>[^/]+)/%s$'
 
@@ -145,7 +146,7 @@ def refresh(request, tenant_id):
     terminate_form = TerminateInstance()
     reboot_form = RebootInstance()
 
-    return shortcuts.render_to_response(topbar + '/instance_list.html', {
+    return shortcuts.render_to_response(topbar + '/instance_view.html', {
         'instances': instances,
         'terminate_form': terminate_form,
         'reboot_form': reboot_form,
