@@ -40,6 +40,7 @@ from django_openstack import forms
 from openstackx.api import exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
 
+
 topbar = get_topbar_name(__file__)
 USERS = r'^users/(?P<user_id>[^/]+)/%s$'
 

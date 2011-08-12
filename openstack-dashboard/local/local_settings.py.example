@@ -78,9 +78,9 @@ EXTERNAL_MONITORING = [
 #        }
 #}
 
-# How much ram on each compute host?
-COMPUTE_HOST_RAM_GB = 16
-LOGIN_URL = '/dashboard/auth/login'
+SCRIPT_NAME = '/dashboard'
+LOGIN_URL = SCRIPT_NAME + '/auth/login'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

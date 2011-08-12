@@ -1,15 +1,15 @@
 class Roles:
-    DEFAULT = 'user'
+    USER = 'user'
     PROJECT_ADMIN = 'projadmin'
     SOFTWARE_ADMIN = 'softadmin'
     HARDWARE_ADMIN = 'hardadmin'
     ALL_ROLES = (HARDWARE_ADMIN, SOFTWARE_ADMIN,
-                  PROJECT_ADMIN, DEFAULT)
+                 PROJECT_ADMIN, USER)
 
     @staticmethod
     def get_max_role(roles):
         if not roles:
-            return Roles.DEFAULT
+            return Roles.USER
         for role in Roles.ALL_ROLES:
             if role in roles:
                 return role

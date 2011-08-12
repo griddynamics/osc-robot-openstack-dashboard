@@ -52,7 +52,7 @@ class AddUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.add_for_tenant_user(data['tenant'],
-                    data['user'], auth.Roles.DEFAULT)
+                    data['user'], auth.Roles.USER)
             messages.success(request,
                              '%s was successfully added to %s.'
                              % (data['user'], data['tenant']))
@@ -68,7 +68,7 @@ class RemoveUser(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             api.account_api(request).role_refs.delete_for_tenant_user(data['tenant'],
-                    data['user'], auth.Roles.DEFAULT)
+                    data['user'], auth.Roles.USER)
             messages.success(request,
                              '%s was successfully removed from %s.'
                              % (data['user'], data['tenant']))
@@ -94,7 +94,7 @@ def users(request):
     users = api.account_api(request).users.get_for_tenant(tenant_id).values
     all_users = api.account_api(request).users.list()
     new_user_ids = set([u.id for u in all_users if auth.Roles.needs_tenant(api.User(u).global_roles)]) - set([u['id'] for u in users])
-    users = [user for user in users if auth.Roles.DEFAULT in user["tenantRoles"]]
+    users = [user for user in users if auth.Roles.USER in user["tenantRoles"]]
     return render_to_response(
     topbar + '/project_users.html',{
         'add_user_form': add_user_form,

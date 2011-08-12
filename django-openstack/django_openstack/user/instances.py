@@ -40,6 +40,7 @@ import openstack.compute.servers
 import openstackx.api.exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
 
+
 topbar = get_topbar_name(__file__)
 INSTANCES = r'^(?P<tenant_id>[^/]+)/instances/(?P<instance_id>[^/]+)/%s$'
 

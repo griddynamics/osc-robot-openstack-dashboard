@@ -33,6 +33,7 @@ import openstackx
 from openstackx.api import exceptions as api_exceptions
 from django_openstack.urls import get_topbar_name
 
+
 topbar = get_topbar_name(__file__)
 urlpatterns = patterns(__name__,
     url(r'login/$', 'login', name=topbar + '/login'),

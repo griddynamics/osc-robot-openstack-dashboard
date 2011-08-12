@@ -12,7 +12,6 @@ from django.shortcuts import redirect
 from django.shortcuts import render_to_response
 from openstackx.api import exceptions as api_exceptions
 
-
 from django_openstack import api
 from django_openstack import forms
 from django_openstack.urls import get_topbar_name
