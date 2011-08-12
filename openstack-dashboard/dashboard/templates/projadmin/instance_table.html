@@ -28,7 +28,9 @@
           <li class="form">{% include 'user/instance_terminate_form.html' with form=terminate_form %}</li>
           <li class="form">{% include 'user/instance_reboot_form.html' with form=reboot_form %}</li>
           <li><a target="_blank" href="{% url user/instances_console instance.attrs.project_id instance.id %}">Console Log</a></li>
+          {% if "vnc" in request.features %}
           <li><a target="_blank" href="{% url user/instances_vnc instance.attrs.project_id instance.id %}">VNC Console</a></li>
+          {% endif %}
         </ul>
       </td>
     </tr>

@@ -51,7 +51,6 @@ urlpatterns = patterns(__name__,
     url(r'^(?P<tenant_id>[^/]+)/instances/$', 'index', name=topbar + '/instances'),
     url(r'^(?P<tenant_id>[^/]+)/instances/refresh$', 'refresh', name=topbar + '/instances_refresh'),
     url(INSTANCES % 'console', 'console', name=topbar + '/instances_console'),
-    url(INSTANCES % 'vnc', 'vnc', name=topbar + '/instances_vnc'),
     url(INSTANCES % 'update', 'update', name=topbar + '/instances_update'),
 )
 
@@ -220,22 +219,6 @@ def console(request, tenant_id, instance_id):
 
         messages.error(request,
                    'Unable to get log for instance %s: %s' %
-                   (instance_id, e.message))
-        return shortcuts.redirect(topbar + '/instances', tenant_id)
-
-
-@login_required
-def vnc(request, tenant_id, instance_id):
-    try:
-        console = api.console_create(request, instance_id, 'vnc')
-        instance = api.server_get(request, instance_id)
-        return shortcuts.redirect(console.output + ("&title=%s(%s)" % (instance.name, instance_id)))
-    except api_exceptions.ApiException, e:
-        LOG.error('ApiException while fetching instance vnc connection',
-                  exc_info=True)
-
-        messages.error(request,
-                   'Unable to get vnc console for instance %s: %s' %
                    (instance_id, e.message))
         return shortcuts.redirect(topbar + '/instances', tenant_id)
 

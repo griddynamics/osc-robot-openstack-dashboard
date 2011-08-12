@@ -130,6 +130,13 @@ class TopbarRoleCheckMiddleware(object):
             return shortcuts.redirect("splash")
 
 
+class FeaturesMiddleware(object):
+    FEATURES = set()
+
+    def process_request(self, request):
+        request.__class__.features = FeaturesMiddleware.FEATURES
+
+
 for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py"):
     topbar = os.path.basename(os.path.dirname(pattern_file))
     sidebar = os.path.basename(pattern_file)[:-3]
@@ -149,5 +156,9 @@ for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py")
     try:
         for mw_classname in sidebar_module.MIDDLEWARE_CLASSES:
             PluginsMiddleware.MIDDLEWARE_CLASSES += (sidebar_module_name + "." + mw_classname,)
+    except AttributeError:
+        pass
+    try:
+        FeaturesMiddleware.FEATURES.update(sidebar_module.FEATURES)
     except AttributeError:
         pass

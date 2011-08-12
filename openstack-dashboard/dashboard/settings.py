@@ -32,7 +32,6 @@ TEMPLATE_DEBUG = DEBUG
 SITE_ID = 1
 SITE_BRANDING = 'OpenStack'
 SITE_NAME = 'openstack'
-ENABLE_VNC = True
 
 SCRIPT_NAME = ''
 LOGIN_URL = '/auth/login'
