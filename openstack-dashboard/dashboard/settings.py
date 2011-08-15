@@ -52,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django_openstack.middleware.keystone.AuthenticationMiddleware',
     'django_openstack.urls.PluginsMiddleware',
+    'django_openstack.urls.FeaturesMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'dashboard.middleware.DashboardLogUnhandledExceptionsMiddleware',
