@@ -33,6 +33,7 @@ def get_topbar_name(file_name):
 
 
 urlpatterns = []
+topbars = []
 
 class PluginsMiddleware(object):
     MIDDLEWARE_CLASSES = ()
@@ -140,6 +141,7 @@ class FeaturesMiddleware(object):
 for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py"):
     topbar = os.path.basename(os.path.dirname(pattern_file))
     sidebar = os.path.basename(pattern_file)[:-3]
+    topbars.append(topbar)
     if sidebar == "__init__":
         sidebar_module_name = "django_openstack" + "." + topbar
     else:

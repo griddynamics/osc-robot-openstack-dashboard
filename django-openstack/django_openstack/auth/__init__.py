@@ -1,3 +1,6 @@
+import django_openstack.urls
+
+
 class Roles:
     USER = 'user'
     PROJECT_ADMIN = 'projadmin'
@@ -12,7 +15,10 @@ class Roles:
             return Roles.USER
         for role in Roles.ALL_ROLES:
             if role in roles:
-                return role
+                if role in django_openstack.urls.topbars:
+                    return role
+                else:
+                    return Roles.USER
 
     @staticmethod
     def needs_tenant(roles):
