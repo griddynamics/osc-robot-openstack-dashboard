@@ -17,8 +17,7 @@ class Roles:
             if role in roles:
                 if role in django_openstack.urls.topbars:
                     return role
-                else:
-                    return Roles.USER
+        return Roles.USER
 
     @staticmethod
     def needs_tenant(roles):
