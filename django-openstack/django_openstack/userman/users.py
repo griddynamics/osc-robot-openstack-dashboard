@@ -128,8 +128,8 @@ class UserForm(forms.SelfHandlingForm):
 
 
 class UserEditAdminForm(UserForm):
-    is_softadmin = forms.BooleanField(label="Software Admin", required=False, initial=False) 
-    is_hardadmin = forms.BooleanField(label="Hardware Admin", required=False, initial=False)
+    is_softadmin = forms.BooleanField(label="Cloud Administrator", required=False, initial=False)
+    is_hardadmin = forms.BooleanField(label="System Operator", required=False, initial=False)
 
     def _handle(self, request, data):
         super(UserEditAdminForm, self)._handle(request, data)
