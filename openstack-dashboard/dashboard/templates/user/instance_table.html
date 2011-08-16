@@ -29,8 +29,28 @@
               <li>{{instance.attrs.disk_gb}}GB Disk</li>
             </ul>
           </td>
-          <td>{{instance.addresses.private.0.addr|default:'-'}}</td>
-          <td>{{instance.addresses.public.0.addr|default:'N/A'}}</td>
+          <td>
+            <ul>
+              {% for network_name, network_val in instance.addresses.items %}
+                 {% for addr in network_val %}
+                      {% if addr.fixed %}
+                          <li>{{network_name}} - {{addr.addr}} </li>
+                      {% endif %}
+                  {% endfor %}
+              {% endfor %}
+              </ul>
+          </td>
+          <td>
+            <ul>
+              {% for network_name, network_val in instance.addresses.items %}
+                  {% for addr in network_val %}
+                      {% if not addr.fixed %}
+                          <li>{{network_name}} - {{addr.addr}} </li>
+                      {% endif %}
+                  {% endfor %}
+              {% endfor %}
+            </ul>
+          </td>
           <td>{{instance.status|lower|capfirst}}</td>
           <td id="actions">
             <ul>
