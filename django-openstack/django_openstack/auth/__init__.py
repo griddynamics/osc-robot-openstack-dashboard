@@ -10,14 +10,12 @@ class Roles:
                  PROJECT_ADMIN, USER)
 
     @staticmethod
-    def get_max_role(roles):
-        if not roles:
-            return Roles.USER
+    def get_default_page(roles):
         for role in Roles.ALL_ROLES:
-            if role in roles:
-                if role in django_openstack.urls.topbars:
-                    return role
-        return Roles.USER
+            if role in roles and role in django_openstack.urls.topbars:
+                return role
+        # here roles == ['hardadmin'] and no hardadmin topbar is installed
+        return 'userman'
 
     @staticmethod
     def needs_tenant(roles):

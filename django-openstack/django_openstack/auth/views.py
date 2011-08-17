@@ -75,7 +75,7 @@ def handle_login(request, username, password, tenant):
         LOG.info('Login form for user "%s" on tenant "%s". Service Catalog data:\n%s' %
                  (username, tenant, token.serviceCatalog))
 
-        return shortcuts.redirect(auth.Roles.get_max_role(info['roles']))
+        return shortcuts.redirect(auth.Roles.get_default_page(info['roles']))
 
     except api_exceptions.Unauthorized as e:
         display_error(request, 'Error authenticating: %s' % e.message)
@@ -96,7 +96,7 @@ class Login(forms.SelfHandlingForm):
 
 def login(request):
     if request.user and request.user.is_authenticated():
-        return shortcuts.redirect(auth.Roles.get_max_role(request.user.roles))
+        return shortcuts.redirect(auth.Roles.get_default_page(request.user.roles))
 
     form, handled = Login.maybe_handle(request)
     if handled:
