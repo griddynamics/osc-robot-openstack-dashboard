@@ -175,8 +175,12 @@ class Server(APIResourceWrapper):
 
     @property
     def image_name(self):
-        image = image_get(self.request, self.imageRef)
-        return image.name
+        try:
+            image = image_get(self.request, self.imageRef)
+        except:
+            return"id = %d" % self.imageRef
+        else:
+            return image.name
 
     def reboot(self, hardness=openstack.compute.servers.REBOOT_HARD):
         compute_api(self.request).servers.reboot(self.id, hardness)
