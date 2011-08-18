@@ -25,6 +25,7 @@ from django.utils.importlib import import_module
 from django.contrib import messages
 from django import shortcuts
 import os
+import logging
 from glob import glob
 
 
@@ -34,6 +35,7 @@ def get_topbar_name(file_name):
 
 urlpatterns = []
 topbars = []
+LOG = logging.getLogger(__name__)
 
 class PluginsMiddleware(object):
     MIDDLEWARE_CLASSES = ()
@@ -150,17 +152,26 @@ for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py")
         sidebar_module = import_module(sidebar_module_name)
     except ImportError:
         continue
+    LOG.info("loaded plugin %s" % sidebar_module_name)
     try:
         sidebar_module.urlpatterns
-        urlpatterns += patterns('', url(r'^' + topbar + '/', include(sidebar_module_name)))
     except AttributeError:
         pass
+    else:
+        urlpatterns += patterns('', url(r'^' + topbar + '/', include(sidebar_module_name)))
+        LOG.info("loaded urlpatterns from %s" % sidebar_module_name)
     try:
+        sidebar_module.MIDDLEWARE_CLASSES
+    except AttributeError:
+        pass
+    else:
         for mw_classname in sidebar_module.MIDDLEWARE_CLASSES:
             PluginsMiddleware.MIDDLEWARE_CLASSES += (sidebar_module_name + "." + mw_classname,)
-    except AttributeError:
-        pass
+        LOG.info("loaded middleware %s.%s" % (sidebar_module_name, mw_classname))
     try:
-        FeaturesMiddleware.FEATURES.update(sidebar_module.FEATURES)
+        sidebar_module.FEATURES
     except AttributeError:
         pass
+    else:
+        FeaturesMiddleware.FEATURES.update(sidebar_module.FEATURES)
+        LOG.info("loaded features %s from %s" % (list(sidebar_module.FEATURES), sidebar_module_name))
