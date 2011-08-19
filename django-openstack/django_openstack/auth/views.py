@@ -108,7 +108,10 @@ def login(request):
 
 
 def switch_tenants(request, tenant_id):
-    return handle_login(request, request.session['username'], request.session['password'], tenant_id)
+    try:
+        return handle_login(request, request.session['username'], request.session['password'], tenant_id)
+    except KeyError:
+        return shortcuts.redirect('splash')
 
 
 def logout(request):
