@@ -230,6 +230,10 @@ class User(APIResourceWrapper):
 
     def __init__(self, apiresource):
         APIResourceWrapper.__init__(self, apiresource)
+        try:
+            self.email
+        except AttributeError:
+            self.email = ""
 
     def __getattr__(self, attr):
         if attr == "role_refs":
@@ -240,6 +244,11 @@ class User(APIResourceWrapper):
             return self.__dict__[attr]
         return super(User, self).__getattr__(attr)
 
+    def has_tenant(self):
+        for role in self.role_refs:
+            if role.tenantId:
+                return True
+        return False
 
 class SwiftAuthentication(object):
     """Auth container to pass CloudFiles storage URL and token from
