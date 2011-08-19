@@ -71,29 +71,7 @@ class CreateKeypair(forms.SelfHandlingForm):
     name = forms.CharField(max_length="20", label="Keypair Name",
                  validators=[validators.RegexValidator('\w+')])
 
-    @classmethod
-    def maybe_handle(cls, request, *args, **kwargs):
-        if cls.__name__ != request.POST.get('method'):
-            return cls(*args, **kwargs), None
-        try:
-            if request.FILES:
-                form = cls(request.POST, request.FILES, *args, 
-                 **kwargs)
-            else:
-                form = cls(request.POST, *args, **kwargs)
-            if not form.is_valid():
-                return form, None
-            data = form.clean()
-            return form, form.handle(request, data)
-        except Exception as e:
-            LOG.error('Nonspecific error while handling form', 
-             exc_info=True)
-            messages.error(request, 'Unexpected error: %s' % e.
-             message)
-            return form, None
-
     def handle(self, request, data):
-       # raise Exception("handle called")
         try:
             LOG.info('Creating keypair "%s"' % data['name'])
             keypair = api.keypair_create(request, data['name'])
@@ -132,7 +110,6 @@ def index(request, tenant_id):
 @login_required
 def create(request, tenant_id):
     form, handled = CreateKeypair.maybe_handle(request)
-    #raise Exception("create called" +( handled if handled else " <empty>"))
     if handled:
         return handled
 
