@@ -8,6 +8,7 @@ class Roles:
     HARDWARE_ADMIN = 'hardadmin'
     ALL_ROLES = (HARDWARE_ADMIN, SOFTWARE_ADMIN,
                  PROJECT_ADMIN, USER)
+    TENANTED_ROLES = (PROJECT_ADMIN, USER)
 
     @staticmethod
     def get_default_page(roles):

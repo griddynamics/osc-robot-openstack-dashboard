@@ -65,6 +65,8 @@ def handle_login(request, username, password, tenant):
             if not tenant:
                 display_error(request, 'No tenants/projects for user %s' % username)
                 return shortcuts.redirect('splash')
+        else:
+            info['roles'] -= set(auth.Roles.TENANTED_ROLES)
 
         request.session['token'] = token.id
         request.session['username'] = username
