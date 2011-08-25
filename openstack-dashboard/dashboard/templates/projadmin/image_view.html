@@ -14,4 +14,7 @@
 
 {% block _main %}
   {% include 'projadmin/image_table.html' %}
+  {% if 'fileupload' in request.features %}
+    <a href={% url projadmin/fileupload %}> Add Image </a>
+  {% endif %} 
 {% endblock %}
