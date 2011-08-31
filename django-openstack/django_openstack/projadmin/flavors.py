@@ -48,11 +48,11 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateFlavor(forms.SelfHandlingForm):
-    flavorid = forms.CharField(max_length="10", label="Flavor ID")
-    name = forms.CharField(max_length="25", label="Name")
-    vcpus = forms.CharField(max_length="5", label="VCPUs")
-    memory_mb = forms.CharField(max_length="5", label="Memory MB")
-    disk_gb = forms.CharField(max_length="5", label="Disk GB")
+    flavorid = forms.IntegerField(label="Flavor ID")
+    name = forms.SlugField(max_length="25", label="Name")
+    vcpus = forms.IntegerField(label="VCPUs")
+    memory_mb = forms.IntegerField(label="Memory MB")
+    disk_gb = forms.IntegerField(label="Disk GB")
 
     def handle(self, request, data):
         api.flavor_create(request,

@@ -82,9 +82,9 @@ class ToggleImage(forms.SelfHandlingForm):
         return redirect(request.build_absolute_uri())
 
 class UpdateImageForm(forms.SelfHandlingForm):
-    name = forms.CharField(max_length="25", label="Name")
-    kernel = forms.CharField(max_length="25", label="Kernel ID", required=False)
-    ramdisk = forms.CharField(max_length="25", label="Ramdisk ID", required=False)
+    name = forms.SlugField(max_length="25", label="Name")
+    kernel = forms.IntegerField(label="Kernel ID", required=False)
+    ramdisk = forms.IntegerField(label="Ramdisk ID", required=False)
     architecture = forms.CharField(label="Architecture", required=False)
     #project_id = forms.CharField(label="Project ID")
     container_format = forms.CharField(label="Container Format", required=False)

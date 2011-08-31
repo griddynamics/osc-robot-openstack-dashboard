@@ -54,7 +54,7 @@ urlpatterns = patterns(__name__,
 LOG = logging.getLogger(__name__)
 
 class LaunchForm(forms.SelfHandlingForm):
-    name = forms.CharField(max_length=80, label="Server Name")
+    name = forms.SlugField(max_length=80, label="Server Name")
     image_id = forms.CharField(widget=forms.HiddenInput())
     tenant_id = forms.CharField(widget=forms.HiddenInput())
     user_data = forms.CharField(widget=forms.Textarea,

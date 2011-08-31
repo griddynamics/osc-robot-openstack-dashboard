@@ -53,9 +53,9 @@ urlpatterns = patterns(__name__,
 LOG = logging.getLogger(__name__)
 
 class UserForm(forms.SelfHandlingForm):
-    id = forms.CharField(label="ID (username)")
+    id = forms.SlugField(label="ID (username)")
     password = forms.CharField(label="Password", widget=forms.PasswordInput(render_value=False), required=False)
-    email = forms.CharField(label="Email")
+    email = forms.EmailField(label="Email")
 
     def __init__(self, *args, **kwargs):
         self.is_create = kwargs.pop('is_create', False)

@@ -87,7 +87,7 @@ class RemoveUser(forms.SelfHandlingForm):
 
 
 class CreateTenant(forms.SelfHandlingForm):
-    id = forms.CharField(label="ID (name)")
+    id = forms.SlugField(label="ID (name)")
     description = forms.CharField(widget=forms.widgets.Textarea(), label="Description")
     enabled = forms.BooleanField(label="Enabled", required=False, initial=True)
 
