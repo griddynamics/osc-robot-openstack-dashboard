@@ -128,7 +128,7 @@ def cut_admin_token(auth_filename):
 
 
 OPENSTACK_ADMIN_TOKEN = cut_admin_token("/etc/nova/auth_token.ini")
-OPENSTACK_ENDPOINT_TEMPLATES = ['glance']
+OPENSTACK_ENDPOINT_TEMPLATES = ['glance', 'nova']
 
 
 try:
