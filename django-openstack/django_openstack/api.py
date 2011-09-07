@@ -596,7 +596,7 @@ def project_scrub(request, project_id):
 
 
 def project_zipfile(request, project_id):
-    return admin_api(request).projects.zipfile(project_id)
+    return extras_api(request).projects.zipfile(project_id)
 
 
 @check_openstackx
