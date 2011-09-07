@@ -88,10 +88,10 @@ class DeleteGroup(forms.SelfHandlingForm):
 
 
 class AddRule(forms.SelfHandlingForm):
-    ip_protocol = forms.ChoiceField(choices=[('tcp', 'tcp'), ('udp', 'udp'), ('icmp', 'icmp')])
+    ip_protocol = forms.ChoiceField(label="IP protocol", choices=[('tcp', 'tcp'), ('udp', 'udp'), ('icmp', 'icmp')])
     from_port = forms.IntegerField()
     to_port = forms.IntegerField()
-    cidr = forms.CharField()
+    cidr = forms.CharField(label="CIDR")
 # group_id = forms.CharField()
 
     security_group_id = forms.CharField(widget=forms.HiddenInput())
