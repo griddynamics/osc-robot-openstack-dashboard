@@ -73,4 +73,4 @@ def zipfile(request, tenant_id):
     except api_exceptions.ApiException, e:
         LOG.error("ApiException in api_credentials.zipfile", exc_info=True)
         messages.error(request, 'Error Retrieving Zipfile: %s' % e.message)
-        return shortcuts.redirect(topbar + '/api_credentials')
+        return shortcuts.redirect(topbar + '/api_credentials', tenant_id=tenant_id)
