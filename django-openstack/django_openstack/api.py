@@ -586,11 +586,18 @@ def user_delete(request, user_id):
 def user_get(request, user_id):
     return User(account_api(request).users.get(user_id))
 
+
 def project_delete(request, project_id):
     admin_api(request).projects.delete(project_id)
 
+
 def project_scrub(request, project_id):
     admin_api(request).projects.scrub(project_id)
+
+
+def project_zipfile(request, project_id):
+    return admin_api(request).projects.zipfile(project_id)
+
 
 @check_openstackx
 def user_list(request):
