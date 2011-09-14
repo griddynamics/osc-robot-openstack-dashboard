@@ -51,6 +51,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django_openstack.middleware.keystone.AuthenticationMiddleware',
+    'django_openstack.middleware.ajax.AjaxMessagingMiddleware',
     'django_openstack.urls.PluginsMiddleware',
     'django_openstack.urls.FeaturesMiddleware',
     'django.middleware.doc.XViewMiddleware',
