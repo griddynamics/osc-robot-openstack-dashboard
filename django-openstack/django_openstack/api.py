@@ -46,6 +46,7 @@ import openstackx.admin
 import openstackx.api.exceptions as api_exceptions
 import openstackx.extras
 import openstackx.auth
+from novaclient.v1_1 import client
 from urlparse import urlparse
 
 
@@ -128,6 +129,11 @@ class Console(APIResourceWrapper):
 class Flavor(APIResourceWrapper):
     """Simple wrapper around openstackx.admin.flavors.Flavor"""
     _attrs = ['disk', 'id', 'links', 'name', 'ram', 'vcpus']
+
+
+class FloatingIp(APIResourceWrapper):
+    """Simple wrapper for floating ips"""
+    _attrs = ['ip', 'fixed_ip', 'instance_id', 'id']
 
 
 class Image(APIDictWrapper):
@@ -376,6 +382,18 @@ def swift_api(request):
     return cloudfiles.get_connection(auth=auth)
 
 
+def novaclient(request):
+    LOG.debug('novaclient connection created using token "%s"'
+              ' and url "%s"' % (request.user.token, url_for(request, 'nova')))
+    c = client.Client(username=request.user.username,
+                      api_key=request.user.token,
+                      project_id=request.user.tenant,
+                      auth_url=url_for(request, 'nova'))
+    c.client.auth_token = request.user.token
+    c.client.management_url=url_for(request, 'nova')
+    return c
+
+
 def console_create(request, instance_id, kind='text'):
     return Console(extras_api(request).consoles.create(instance_id, kind))
 
@@ -391,6 +409,34 @@ def flavor_delete(request, flavor_id, purge=False):
 
 def flavor_get(request, flavor_id):
     return Flavor(compute_api(request).flavors.get(flavor_id))
+
+
+def tenant_floating_ip_list(request):
+    """
+Fetches a list of all floating ips.
+"""
+    return [FloatingIp(ip) for ip in novaclient(request).floating_ips.list()]
+
+
+def tenant_floating_ip_get(request, floating_ip_id):
+    """
+Fetches a floating ip.
+"""
+    return novaclient(request).floating_ips.get(floating_ip_id)
+
+
+def tenant_floating_ip_allocate(request):
+    """
+Allocates a floating ip to tenant.
+"""
+    return novaclient(request).floating_ips.create()
+
+
+def tenant_floating_ip_release(request, floating_ip_id):
+    """
+Releases floating ip from the pool of a tenant.
+"""
+    return novaclient(request).floating_ips.delete(floating_ip_id)
 
 
 @check_openstackx
