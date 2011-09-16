@@ -55,7 +55,6 @@ class PluginsMiddleware(object):
         self._template_response_middleware = []
         self._response_middleware = []
         self._exception_middleware = []
-        print "classes %s" %(PluginsMiddleware.MIDDLEWARE_CLASSES,)
         for middleware_path in PluginsMiddleware.MIDDLEWARE_CLASSES:
             try:
                 mw_module, mw_classname = middleware_path.rsplit('.', 1)
@@ -88,7 +87,6 @@ class PluginsMiddleware(object):
 
     def process_request(self, request):
         response = None
-        print "qqq:::::::::::"
         for middleware_method in self._request_middleware:
             response = middleware_method(request)
             if response:
@@ -161,4 +159,3 @@ for pattern_file in glob(os.path.dirname(os.path.abspath(__file__)) + "/*/*.py")
         FeaturesMiddleware.FEATURES.update(sidebar_module.FEATURES)
         LOG.info("loaded features %s from %s" % (list(sidebar_module.FEATURES), sidebar_module_name))
 
-print urlpatterns

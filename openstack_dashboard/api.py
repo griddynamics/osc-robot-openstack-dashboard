@@ -564,7 +564,6 @@ def tenant_append_endpoints(request, tenant_id, service_names):
     api = account_api(request)
     template_ids = []
     for template in api.endpoint_templates.list():
-        print template.serviceName
         if template.serviceName in service_names:
             template_ids.append(str(template.id))
     if not template_ids:
