@@ -511,6 +511,26 @@ def server_update(request, instance_id, name, description):
                                               description=description)
 
 
+def server_add_floating_ip(request, server, address):
+    """
+Associates floating IP to server's fixed IP.
+"""
+    server = novaclient(request).servers.get(server)
+    fip = novaclient(request).floating_ips.get(address)
+
+    return novaclient(request).servers.add_floating_ip(server, fip)
+
+
+def server_remove_floating_ip(request, server, address):
+    """
+Removes relationship between floating and server's fixed ip.
+"""
+    fip = novaclient(request).floating_ips.get(address)
+    server = novaclient(request).servers.get(fip.instance_id)
+
+    return novaclient(request).servers.remove_floating_ip(server, fip)
+
+
 def service_get(request, name):
     return Services(admin_api(request).services.get(name))
 
@@ -559,6 +579,7 @@ def tenant_update(request, tenant_id, description, enabled):
 
 def tenant_delete(request, tenant_id):
     account_api(request).tenants.delete(tenant_id)
+
 
 def tenant_append_endpoints(request, tenant_id, service_names):
     api = account_api(request)
