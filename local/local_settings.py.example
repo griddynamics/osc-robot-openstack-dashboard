@@ -101,8 +101,9 @@ LOGGING = {
         'django': {
             'handlers': ['log_file'],
             'propagate': False,
+            'level': 'INFO',
             },
-        'django_openstack': {
+        'openstack_dashboard': {
             'handlers': ['log_file'],
             'propagate': False,
             },
