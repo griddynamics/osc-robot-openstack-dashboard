@@ -119,6 +119,9 @@ ACCOUNT_ACTIVATION_DAYS = 7
 
 TOTAL_CLOUD_RAM_GB = 10
 
+SYSCONFDIR = '/etc'
+sys.path.insert(0, SYSCONFDIR + '/dashboard')
+
 try:
     from local.local_settings import *
 except Exception, e:
