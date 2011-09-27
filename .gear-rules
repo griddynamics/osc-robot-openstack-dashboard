@@ -1,0 +1,4 @@
+copy: redhat/*.init
+copy: redhat/*setup.py
+copy: redhat/openstack-dashboard-1.0-dashboard
+tar.gz: . name=@name@-@version@ base=@name@-@version@
