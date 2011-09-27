@@ -46,7 +46,7 @@ setup(
 #                        [s[len('dashboard/'):] for s in
 #                         findall('dashboard/templates')]},
 
-    data_files = [],
+    data_files = [('/etc/openstack_dashboard/local', findall('local')), ('/var/lib/openstack_dashboard', set())],
     install_requires = ['setuptools', 'mox>=0.5.0'],
     zip_safe = False,
     classifiers = [
