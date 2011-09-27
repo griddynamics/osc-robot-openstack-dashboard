@@ -108,7 +108,7 @@ Requires:       python-webob >= 1
 Requires:       python-cloudfiles 
 Requires:       python-boto = 1.9b 
 Requires:       python-httplib2 
-Requires:       Django = 1.3 
+Requires:       Django >= 1.3 
 Requires:       django-mailer
 
 %description -n django-openstack
