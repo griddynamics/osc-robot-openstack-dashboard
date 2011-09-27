@@ -90,6 +90,8 @@ fi
 %{_sysconfdir}
 %dir %attr(0755, apache, apache) %{_localstatedir}/lib/%{mod_name}
 %dir %attr(0755, apache, apache) %{_localstatedir}/log/%{mod_name}
+%{python_sitelib}/django_openstack
+%{python_sitelib}/openstack_dashboard-*egg-info
 
 %package -n django-openstack
 Summary:        A Django interface for OpenStack
