@@ -45,7 +45,7 @@ from openstack_dashboard.plugins import get_topbar_name
 
 topbar = get_topbar_name(__file__)
 urlpatterns = patterns(__name__,
-    url(r'^$', 'index', name=topbar),
+#    url(r'^$', 'index', name=topbar),
     url(r'^services/$', 'index', name=topbar + '/services'),
 )
 

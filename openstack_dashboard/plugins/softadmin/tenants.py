@@ -43,6 +43,7 @@ from openstack_dashboard.plugins import get_topbar_name
 topbar = get_topbar_name(__file__)
 TENANTS = r'^tenants/(?P<tenant_id>[^/]+)/%s$'
 urlpatterns = patterns(__name__,
+    url(r'^$', 'index', name=topbar),
     url(r'^tenants/$', 'index', name=topbar + '/tenants'),
     url(r'^tenants/create$', 'create', name=topbar + '/tenant_create'),
     url(TENANTS % 'update', 'update', name=topbar + '/tenant_update'),
