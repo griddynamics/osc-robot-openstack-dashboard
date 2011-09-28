@@ -18,6 +18,7 @@
 # norootforbuild
 
 %define mod_name dashboard
+%define script_name /dashboard
 %define py_puresitedir  /usr/lib/python2.6/site-packages
 %define httpd_conf /etc/httpd/conf/httpd.conf
 
@@ -76,6 +77,8 @@ if test $1 -le 1; then
     chown -R apache:apache %{_localstatedir}/lib/%{mod_name}
     chown -R apache:apache %{_localstatedir}/log/%{mod_name}
 fi
+
+echo 'SCRIPT_NAME = "%{script_name}"' >> /etc/dashboard/local/local_settings.py
 
 if ! grep -q 'dashboard/wsgi/django.wsgi' %{httpd_conf}; then
     echo "Adding entry to %{httpd_conf}"
