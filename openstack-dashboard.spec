@@ -97,7 +97,7 @@ fi
 Summary:        A Django interface for OpenStack
 Group:          Development/Languages/Python
 Requires:       openstack-keystone >= %{version} 
-Requires:       openstack-compute >= %{version} 
+Requires:       openstack-compute 
 Requires:       openstackx >= %{version}
 Requires:       python-dateutil 
 Requires:       python-eventlet >= 0.9.12 
