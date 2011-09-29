@@ -18,6 +18,7 @@
 # norootforbuild
 
 %define mod_name dashboard
+%define script_name /dashboard
 %define py_puresitedir  /usr/lib/python2.6/site-packages
 %define httpd_conf /etc/httpd/conf/httpd.conf
 
@@ -33,7 +34,11 @@ BuildRequires:  python-devel python-setuptools
 BuildArch:      noarch
 Summary:        A Django interface for OpenStack
 
-Requires:       django-openstack = %{version}-%{release} django-registration django-nose httpd mod_wsgi
+Requires:       django-openstack django-registration django-nose httpd mod_wsgi
+Requires:       openstack-keystone openstack-compute openstackx
+Requires:       python-dateutil python-eventlet >= 0.9.12 python-greenlet python-sqlalchemy >= 0.6.3
+Requires:       python-sqlalchemy-migrate >= 0.6 python-webob >= 1 python-cloudfiles python-boto = 1.9b python-httplib2
+Requires:       Django = 1.3 django-mailer django-nose
 Summary:        Django based reference implementation of a web based management interface for OpenStack.
 
 %description
@@ -60,6 +65,7 @@ cd django-openstack
 
 cd ../openstack-dashboard
 %{__python} setup.py install --prefix=%{_prefix} --root=%{buildroot} --record ../openstack-dashboard.files
+cd ..
 
 install -d -m 755 %{buildroot}%{_localstatedir}/lib/%{mod_name}
 install -d -m 755 %{buildroot}%{_localstatedir}/log/%{mod_name}
@@ -68,20 +74,23 @@ install -d -m 755 %{buildroot}%{_localstatedir}/log/%{mod_name}
 %__rm -rf %{buildroot}
 
 %post
-(cd /etc/dashboard/local && cp local_settings.py.example local_settings.py)
+(cd /etc/%{mod_name}/local && cp local_settings.py.example local_settings.py)
 # Database init
 if test $1 -le 1; then
     echo "DB init code, new installation"
-    python -m dashboard.manage syncdb
+    python -m %{mod_name}.manage syncdb
     chown -R apache:apache %{_localstatedir}/lib/%{mod_name}
     chown -R apache:apache %{_localstatedir}/log/%{mod_name}
 fi
 
-if ! grep -q 'dashboard/wsgi/django.wsgi' %{httpd_conf}; then
+echo 'SCRIPT_NAME = "%{script_name}"' >> /etc/%{mod_name}/local/local_settings.py
+
+if ! grep -q '%{mod_name}/wsgi/django.wsgi' %{httpd_conf}; then
     echo "Adding entry to %{httpd_conf}"
     echo '' >> %{httpd_conf}
-    echo 'WSGIScriptAlias /dashboard /usr/lib/python2.6/site-packages/dashboard/wsgi/django.wsgi' >> %{httpd_conf}
+    echo 'WSGIScriptAlias /dashboard /usr/lib/python2.6/site-packages/%{mod_name}/wsgi/django.wsgi' >> %{httpd_conf}
     echo 'Alias /media /usr/lib/python2.6/site-packages/media' >> %{httpd_conf}
+    echo 'Alias /static/%{mod_name} /usr/lib/python2.6/site-packages/%{mod_name}/static/%{mod_name}' >> %{httpd_conf}
 fi
 
 %files -f openstack-dashboard.files
@@ -90,8 +99,7 @@ fi
 %{_sysconfdir}
 %dir %attr(0755, apache, apache) %{_localstatedir}/lib/%{mod_name}
 %dir %attr(0755, apache, apache) %{_localstatedir}/log/%{mod_name}
-%{python_sitelib}/django_openstack
-%{python_sitelib}/openstack_dashboard-*egg-info
+%{python_sitelib}/dashboard
 
 %package -n django-openstack
 Summary:        A Django interface for OpenStack
@@ -128,6 +136,7 @@ Of course, if you are developing your own Django site using django-openstack, th
 you can disregard this advice.
 
 %files -n django-openstack -f django-openstack.files
+%{python_sitelib}/django_openstack
 %defattr(-,root,root,-)
 
 %changelog
