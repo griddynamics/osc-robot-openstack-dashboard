@@ -1,57 +1,30 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
-# Copyright 2011 United States Government as represented by the
-# Administrator of the National Aeronautics and Space Administration.
-# All Rights Reserved.
-#
-# Copyright 2011 Nebula, Inc.
-#
-#    Licensed under the Apache License, Version 2.0 (the "License"); you may
-#    not use this file except in compliance with the License. You may obtain
-#    a copy of the License at
-#
-#         http://www.apache.org/licenses/LICENSE-2.0
-#
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-#    License for the specific language governing permissions and limitations
-#    under the License.
-
+#!/usr/bin/env python
 import os
-import shutil
 from setuptools import setup, find_packages, findall
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
-dst = 'debian/openstack-dashboard/var/lib/dash'
-os.system('rm -rf %s' % dst)
-shutil.copytree('tools', '%s/tools' % dst)
-shutil.copytree('dashboard', '%s/dashboard' % dst)
-shutil.copytree('local', '%s/local' % dst)
-
-
 setup(
-    name = "openstack-dashboard",
-    version = "0.2",
-    url = 'https://github.com/cloudbuilders/openstack-dashboard.git',
+    name = "openstack_dashboard",
+    version = "1.0",
+    url = 'https://launchpad.net/openstack-dashboard',
     license = 'Apache 2.0',
-    description = "A Django interface for OpenStack.",
-    long_description = read('README'),
-    author = 'Devin Carlen',
-    author_email = 'devin.carlen@gmail.com',
-#    packages = find_packages(),
-#    package_data = {'openstack-dashboard':
-#                        [s[len('dashboard/'):] for s in
-#                         findall('dashboard/templates')]},
+    description = "Django based reference implementation of a web based management interface for OpenStack.",
+#    packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests", "local"]),
+    packages = ['dashboard', 'media'],
+#    package_data = {'openstack_dashboard':
+#                        [s[len('openstack_dashboard/'):] for s in
+#                        findall('openstack_dashboard/templates') +
+#                        findall('openstack_dashboard/wsgi') +
+#                        findall('openstack_dashboard/locale') +
+#                        findall('openstack_dashboard/static')],
+#                    },
+    package_data = {'dashboard':
+                        [s[len('dashboard/'):] for s in
+                        findall('dashboard/templates') + findall('dashboard/wsgi') + findall('dashboard/locale')],
+                       'media': [s[len('media/'):] for s in findall('media')]
+                   },
 
     data_files = [('/etc/openstack_dashboard/local', findall('local')), ('/var/lib/openstack_dashboard', set())],
-    install_requires = ['setuptools', 'mox>=0.5.0'],
-    zip_safe = False,
     classifiers = [
-        'Development Status :: 4 - Beta',
-        'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache License',
         'Operating System :: OS Independent',
