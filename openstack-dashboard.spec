@@ -23,6 +23,7 @@
 %define httpd_conf /etc/httpd/conf/httpd.conf
 
 Name:           openstack-dashboard
+Epoch:          1
 Version:	2011.3
 Release:	gd
 Url:            http://www.openstack.org
